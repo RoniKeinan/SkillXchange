@@ -3,10 +3,12 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export interface Skill {
   id: number;
   name: string;
+  category: string;
 }
 
 interface SkillContextType {
   skills: Skill[];
+  addSkill: (name: string, category: string) => void;
 }
 
 const SkillContext = createContext<SkillContextType | undefined>(undefined);
@@ -22,17 +24,26 @@ interface SkillProviderProps {
 }
 
 export const SkillProvider: React.FC<SkillProviderProps> = ({ children }) => {
-  const [skills] = useState<Skill[]>([
-    { id: 1, name: 'Web Development' },
-    { id: 2, name: 'Graphic Design' },
-    { id: 3, name: 'Photography' },
-    { id: 4, name: 'Public Speaking' },
-    { id: 5, name: 'Piano' },
+  const [skills, setSkills] = useState<Skill[]>([
+    { id: 1, name: 'Web Development', category: 'Technology' },
+    { id: 2, name: 'Graphic Design', category: 'Creative' },
+    { id: 3, name: 'Photography', category: 'Creative' },
+    { id: 4, name: 'Public Speaking', category: 'Soft Skills' },
+    { id: 5, name: 'Piano', category: 'Music' },
     // Add more example skills here
   ]);
 
+  const addSkill = (name: string, category: string) => {
+    const newSkill = {
+      id: skills.length + 1,
+      name,
+      category,
+    };
+    setSkills([...skills, newSkill]);
+  };
+
   return (
-    <SkillContext.Provider value={{ skills }}>
+    <SkillContext.Provider value={{ skills, addSkill }}>
       {children}
     </SkillContext.Provider>
   );
