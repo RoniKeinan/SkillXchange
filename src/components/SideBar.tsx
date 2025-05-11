@@ -69,9 +69,12 @@ const SideBar: React.FC = () => {
               </Link>
             </li>
             <li style={{ margin: '0.5rem 0' }}>
-              <Link to="/" style={linkStyle}>
+              <a
+            //    href="https://us-east-1ox3ph0c5m.auth.us-east-1.amazoncognito.com/login?client_id=75gadpm7rmsms7r733kmr6ffi0&response_type=token&scope=email+openid+phone&redirect_uri=https%3A%2F%2Fswap-easy.s3.us-east-1.amazonaws.com%2Findex.html"
+                style={linkStyle}
+              >
                 Login
-              </Link>
+              </a>
             </li>
             <li style={{ margin: '0.5rem 0' }}>
               <Link to="/" style={linkStyle}>
