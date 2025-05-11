@@ -21,7 +21,7 @@ const Home: React.FC = () => {
   return (
     <div style={styles.container}>
       <div style={styles.content}>
-        <h1 style={styles.title}>🔄 SkillXchange</h1>
+        <h1 style={styles.title}>SkillXchange</h1>
 
         <div style={styles.filters}>
           {/* Search Bar */}
