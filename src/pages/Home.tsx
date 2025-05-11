@@ -8,6 +8,7 @@ const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [hoveredSkillId, setHoveredSkillId] = useState<string | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
 
   const filteredSkills = skills.filter(skill => {
     const matchesSearch = skill.name.toLowerCase().includes(search.toLowerCase());
@@ -17,14 +18,10 @@ const Home: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  
-
   return (
     <div style={styles.container}>
       <div style={styles.content}>
-        <h1 style={styles.title}>
-          🔄 SkillXchange
-        </h1>
+        <h1 style={styles.title}>🔄 SkillXchange</h1>
 
         <div style={styles.filters}>
           {/* Search Bar */}
@@ -34,9 +31,12 @@ const Home: React.FC = () => {
               placeholder="Search skills (e.g. React, Guitar, Writing)..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={styles.input}
-              onFocus={e => (e.target.style = { ...styles.input, ...styles.inputFocus })}
-              onBlur={e => (e.target.style = styles.input)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              style={{
+                ...styles.input,
+                ...(isFocused ? styles.inputFocus : {})
+              }}
             />
           </div>
 
@@ -63,17 +63,19 @@ const Home: React.FC = () => {
             filteredSkills.map(skill => (
               <div
                 key={skill.id}
-                style={hoveredSkillId === skill.id ? { ...styles.skillCard, ...styles.skillCardHover } : styles.skillCard}
-                onMouseEnter={() => setHoveredSkillId(skill.id)}
+                style={
+                  hoveredSkillId === String(skill.id)
+                    ? { ...styles.skillCard, ...styles.skillCardHover }
+                    : styles.skillCard
+                }
+                onMouseEnter={() => setHoveredSkillId(String(skill.id))}
                 onMouseLeave={() => setHoveredSkillId(null)}
               >
                 <span style={styles.skillName}>{skill.name}</span>
               </div>
             ))
           ) : (
-            <div style={styles.noSkillsMessage}>
-              No skills found 😕
-            </div>
+            <div style={styles.noSkillsMessage}>No skills found 😕</div>
           )}
         </div>
       </div>
@@ -81,7 +83,7 @@ const Home: React.FC = () => {
   );
 };
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: 'flex',
     flexGrow: 1,
@@ -92,6 +94,7 @@ const styles = {
   content: {
     maxWidth: '1200px',
     margin: '0 auto',
+    width: '100%',
   },
   title: {
     fontSize: '3rem',
