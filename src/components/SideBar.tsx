@@ -1,6 +1,8 @@
 import React, { useState, CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
+// ודא שאתה מעדכן את הנתיב הנכון כאן:
+import logo from '../assets/images/logo.png';
 
 const SIDEBAR_WIDTH = 240;
 
@@ -33,23 +35,22 @@ const SideBar: React.FC = () => {
     left: isOpen ? 0 : `-${SIDEBAR_WIDTH + 40}px`,
     width: `${SIDEBAR_WIDTH}px`,
     height: '100vh',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#fdfcfb',
     padding: '2rem 1.5rem',
     boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
     transition: 'left 0.3s ease-in-out',
     zIndex: 1000,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start',
     gap: '2rem',
+    alignItems: 'center',
   };
 
-  const titleStyle: CSSProperties = {
-    fontSize: '1.75rem',
-    fontWeight: 700,
-    color: '#1e3a8a',
-    margin: 0,
-    textAlign: 'center',
+  const logoStyle: CSSProperties = {
+    width: '100%',
+    maxWidth: '160px',
+    height: 'auto',
+    marginBottom: '1rem',
   };
 
   const navListStyle: CSSProperties = {
@@ -59,20 +60,30 @@ const SideBar: React.FC = () => {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
+    width: '100%',
   };
 
   const linkStyle: CSSProperties = {
     display: 'block',
     padding: '0.75rem 1rem',
-    backgroundColor: '#white',
-    borderColor: '#3b82f6',
+    backgroundColor: '#f1f5f9',
     color: '#1e3a8a',
-    borderRadius: '1rem',
+    borderRadius: '0.75rem',
     textDecoration: 'none',
     fontWeight: 500,
     textAlign: 'center',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-    transition: 'background-color 0.3s ease',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+    transition: 'background-color 0.2s ease, transform 0.2s ease',
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.backgroundColor = '#e0e7ff';
+    e.currentTarget.style.transform = 'scale(1.02)';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.backgroundColor = '#f1f5f9';
+    e.currentTarget.style.transform = 'scale(1)';
   };
 
   return (
@@ -86,26 +97,26 @@ const SideBar: React.FC = () => {
       </button>
 
       <aside style={sidebarStyle}>
-        <h3 style={titleStyle}>SkillXchange</h3>
+        <img src={logo} alt="Logo" style={logoStyle} />
         <nav>
           <ul style={navListStyle}>
             <li>
-              <Link to="/" style={linkStyle}>
+              <Link to="/" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 Home
               </Link>
             </li>
             <li>
-              <a href="#" style={linkStyle}>
+              <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 Login
               </a>
             </li>
             <li>
-              <Link to="/ProfileScreen" style={linkStyle}>
+              <Link to="/ProfileScreen" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 Profile
               </Link>
             </li>
             <li>
-              <Link to="/AddSkill" style={linkStyle}>
+              <Link to="/AddSkill" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 Add Skill
               </Link>
             </li>

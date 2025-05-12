@@ -36,14 +36,23 @@ export const CategoryProvider: React.FC<CategoryProviderProps> = ({ children }) 
     { id: 6, name: 'other', skills: [] },
   ]);
 
-  const addCategory = (categoryName: string) => {
-    const newCategory: Category = {
-      id: categories.length + 1,
-      name: categoryName,
-      skills: [],
-    };
-    setCategories([...categories, newCategory]);
+const addCategory = (categoryName: string) => {
+  const capitalizedName = categoryName
+    .split(' ')
+    .map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join(' ');
+
+  const newCategory: Category = {
+    id: categories.length + 1,
+    name: capitalizedName,
+    skills: [],
   };
+
+  setCategories([...categories, newCategory]);
+};
+
 
   const addSkillToCategory = (categoryName: string, skill: Skill) => {
     setCategories(prev =>
