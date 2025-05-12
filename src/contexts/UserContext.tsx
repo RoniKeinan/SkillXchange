@@ -14,7 +14,7 @@ interface User {
   street: string;
   houseNumber: string;
   mySkills: string[];
-  
+  image: string;
 }
 
 interface UserContextType {
