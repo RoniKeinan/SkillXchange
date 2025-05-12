@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useCategoryContext } from '../contexts/CategoryContext';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const Home: React.FC = () => {
   const { skills } = useSkillContext();
@@ -17,6 +20,9 @@ const Home: React.FC = () => {
       : true;
     return matchesSearch && matchesCategory;
   });
+  const navigate = useNavigate();
+
+
 
   return (
     <div style={styles.container}>
@@ -57,25 +63,26 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Display Skills */}
+        {/* Display Categories */}
         <div style={styles.skillsGrid}>
-          {filteredSkills.length > 0 ? (
-            filteredSkills.map(skill => (
+          {categories.length > 0 ? (
+            categories.map((category) => (
               <div
-                key={skill.id}
+                key={category.id}
                 style={
-                  hoveredSkillId === String(skill.id)
+                  hoveredSkillId === String(category.id)
                     ? { ...styles.skillCard, ...styles.skillCardHover }
                     : styles.skillCard
                 }
-                onMouseEnter={() => setHoveredSkillId(String(skill.id))}
+                onMouseEnter={() => setHoveredSkillId(String(category.id))}
                 onMouseLeave={() => setHoveredSkillId(null)}
+                onClick={() => navigate(`/category/${category.name}`)}
               >
-                <span style={styles.skillName}>{skill.name}</span>
+                <span style={styles.skillName}>{category.name}</span>
               </div>
             ))
           ) : (
-            <div style={styles.noSkillsMessage}>No skills found 😕</div>
+            <div style={styles.noSkillsMessage}>No categories found 😕</div>
           )}
         </div>
       </div>
