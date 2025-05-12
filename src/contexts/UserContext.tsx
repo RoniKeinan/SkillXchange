@@ -45,14 +45,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const idToken = hashParams.get("id_token");
       const accessToken = hashParams.get("access_token");
-
+  
       if (idToken && accessToken) {
         localStorage.setItem("idToken", idToken);
         localStorage.setItem("accessToken", accessToken);
         window.location.hash = "/";
       }
     }
-
+  
     const idToken = localStorage.getItem("idToken");
     if (idToken && isTokenValid(idToken)) {
       const [userId, email] = DecodeIDToken(idToken);
@@ -65,25 +65,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .then((data) => setUser(data.user))
         .catch(() => navigate("/ErrorPage"));
     } else {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const idToken = hashParams.get("id_token");
-      const accessToken = hashParams.get("access_token");
-
-      if (idToken && accessToken) {
-        localStorage.setItem("idToken", idToken);
-        localStorage.setItem("accessToken", accessToken);
-        const [userId, email] = DecodeIDToken(idToken);
-        fetch("https://ozshfkh0yg.execute-api.us-east-1.amazonaws.com/dev/User", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: userId, email }),
-        })
-          .then((res) => res.json())
-          .then((data) => setUser(data.user))
-          .catch(console.error);
-      } else {
-        console.error("Tokens not found in the URL hash.");
-      }
+      // 👇 הוספת משתמש פיקטיבי במקרה שאין טוקן
+      const fakeUser: User = {
+        firstName: "Itai",
+        lastName: "Glipoliti",
+        phone: "0501234567",
+        email: "itai@example.com",
+        password: "fakepassword",
+        birthDate: "1999-01-01",
+        city: "Netanya",
+        street: "Herzl",
+        houseNumber: "5",
+        mySkills: ["React", "Node.js", "AWS"],
+        image: "https://i.pravatar.cc/150?img=3"
+      };
+      setUser(fakeUser);
+      setIsAdmin(false); // אם אתה רוצה לבדוק גם הרשאות ניהול אפשר לשנות ל־true
     }
   }, []);
 
