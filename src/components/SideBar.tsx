@@ -105,7 +105,7 @@ const SideBar: React.FC = () => {
               </Link>
             </li>
             <li>
-              <Link to="/add-skill" style={linkStyle}>
+              <Link to="/AddSkill" style={linkStyle}>
                 Add Skill
               </Link>
             </li>
