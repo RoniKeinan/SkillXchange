@@ -100,7 +100,7 @@ const SideBar: React.FC = () => {
               </a>
             </li>
             <li>
-              <Link to="/profile" style={linkStyle}>
+              <Link to="/ProfileScreen" style={linkStyle}>
                 Profile
               </Link>
             </li>
