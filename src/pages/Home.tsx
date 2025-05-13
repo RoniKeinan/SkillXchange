@@ -13,13 +13,19 @@ const Home: React.FC = () => {
   const [hoveredSkillId, setHoveredSkillId] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
 
-  const filteredSkills = skills.filter(skill => {
-    const matchesSearch = skill.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = selectedCategory && selectedCategory !== 'other'
-      ? skill.category === selectedCategory
-      : true;
-    return matchesSearch && matchesCategory;
+
+  const filteredCategories = categories.filter(category => {
+    const matchesSelected =
+      !selectedCategory || selectedCategory === '' || selectedCategory === category.name;
+  
+    const matchesSearch =
+      search.trim() === '' ||
+      category.name.toLowerCase().includes(search.toLowerCase());
+  
+    return matchesSelected && matchesSearch;
   });
+
+
   const navigate = useNavigate();
 
 
@@ -34,7 +40,7 @@ const Home: React.FC = () => {
           <div style={{ width: '100%', maxWidth: '400px' }}>
             <input
               type="text"
-              placeholder="Search skills (e.g. React, Guitar, Writing)..."
+              placeholder="Search categories (e.g. React, Guitar, Writing)..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               onFocus={() => setIsFocused(true)}
@@ -65,8 +71,8 @@ const Home: React.FC = () => {
 
         {/* Display Categories */}
         <div style={styles.skillsGrid}>
-          {categories.length > 0 ? (
-            categories.map((category) => (
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category) => (
               <div
                 key={category.id}
                 style={
@@ -85,6 +91,7 @@ const Home: React.FC = () => {
             <div style={styles.noSkillsMessage}>No categories found 😕</div>
           )}
         </div>
+
       </div>
     </div>
   );

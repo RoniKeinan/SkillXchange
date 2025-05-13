@@ -60,7 +60,7 @@ const SideBar: React.FC = () => {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
-    width: '100%',
+    width: '200px',
   };
 
   const linkStyle: CSSProperties = {
