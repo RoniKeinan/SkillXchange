@@ -4,8 +4,7 @@ import Home from './pages/Home';
 import ProfileScreen from './pages/ProfileScreen';
 import AddSkill from './pages/AddSkill';
 import CategoryPage from './pages/CategoryPage';
-import { Category } from './contexts/CategoryContext';
-
+import SkillDetails from './pages/SkillDetails';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +17,8 @@ const App: React.FC = () => {
           <Route path="/ProfileScreen" element={<ProfileScreen />} />
           <Route path="/AddSkill" element={<AddSkill />} />
           <Route path="/category/:name" element={<CategoryPage />} />
+          <Route path="/skill/:id" element={<SkillDetails />} />
+
 
 
           {/* Add more routes here */}

@@ -1,10 +1,12 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 
 const CategoryPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const { skills } = useSkillContext();
+  const navigate = useNavigate();
 
   const filteredSkills = skills.filter(
     (skill) => skill.category.toLowerCase() === name?.toLowerCase()
@@ -16,7 +18,11 @@ const CategoryPage: React.FC = () => {
       {filteredSkills.length > 0 ? (
         <div style={styles.grid}>
           {filteredSkills.map((skill) => (
-            <div key={skill.id} style={styles.card}>
+            <div
+              key={skill.id}
+              style={{ ...styles.card, cursor: 'pointer' }} // הפוך ללחיץ
+              onClick={() => navigate(`/skill/${skill.id}`)} // נווט לעמוד סקיל
+            >
               <h3 style={styles.skillName}>{skill.name}</h3>
               <p style={styles.description}>{skill.description}</p>
 
