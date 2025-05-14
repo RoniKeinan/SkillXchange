@@ -101,22 +101,22 @@ const SideBar: React.FC = () => {
         <nav>
           <ul style={navListStyle}>
             <li>
-              <Link to="/" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              <Link to="/" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}onClick={() => setIsOpen(!isOpen)}>
                 Home
               </Link>
             </li>
             <li>
-              <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}onClick={() => setIsOpen(!isOpen)}>
                 Login
               </a>
             </li>
             <li>
-              <Link to="/ProfileScreen" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              <Link to="/ProfileScreen" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>
                 Profile
               </Link>
             </li>
             <li>
-              <Link to="/AddSkill" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              <Link to="/AddSkill" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}onClick={() => setIsOpen(!isOpen)}>
                 Add Skill
               </Link>
             </li>

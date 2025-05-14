@@ -2,6 +2,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import isTokenValid from "../components/isTokenValid";
 import { useNavigate } from 'react-router-dom';
 
+interface Skill {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+}
 
 interface User {
   firstName: string;
@@ -13,26 +19,26 @@ interface User {
   city: string;
   street: string;
   houseNumber: string;
-  mySkills: string[];
   image: string;
 }
 
 interface UserContextType {
   user: User | null;
   isAdmin: boolean;
+  skills: Skill[];
   updateUser: (user: User) => void;
   removeUser: () => void;
-
+  setSkills: (skills: Skill[]) => void;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
- 
 
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [skills, setSkills] = useState<Skill[]>([]);
 
   const DecodeIDToken = (idToken: string): [string, string] => {
     const decodedToken = JSON.parse(atob(idToken.split(".")[1]));
@@ -45,14 +51,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const idToken = hashParams.get("id_token");
       const accessToken = hashParams.get("access_token");
-  
+
       if (idToken && accessToken) {
         localStorage.setItem("idToken", idToken);
         localStorage.setItem("accessToken", accessToken);
         window.location.hash = "/";
       }
     }
-  
+
     const idToken = localStorage.getItem("idToken");
     if (idToken && isTokenValid(idToken)) {
       const [userId, email] = DecodeIDToken(idToken);
@@ -65,7 +71,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .then((data) => setUser(data.user))
         .catch(() => navigate("/ErrorPage"));
     } else {
-      // 👇 הוספת משתמש פיקטיבי במקרה שאין טוקן
+      // משתמש פיקטיבי
       const fakeUser: User = {
         firstName: "Itai",
         lastName: "Glipoliti",
@@ -76,11 +82,31 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         city: "Netanya",
         street: "Herzl",
         houseNumber: "5",
-        mySkills: ["React", "Node.js", "AWS"],
-        image: "https://i.pravatar.cc/150?img=3"
+        image: "https://i.pravatar.cc/150?img=3",
       };
       setUser(fakeUser);
-      setIsAdmin(false); // אם אתה רוצה לבדוק גם הרשאות ניהול אפשר לשנות ל־true
+      setIsAdmin(false);
+
+      setSkills([
+        {
+          id: 1,
+          name: 'Web Development',
+          category: 'Technology',
+          description: 'Build modern websites and applications using HTML, CSS, JS.',
+        },
+        {
+          id: 2,
+          name: 'Node.js',
+          category: 'Technology',
+          description: 'Backend development using Node.js.',
+        },
+        {
+          id: 3,
+          name: 'AWS',
+          category: 'Cloud',
+          description: 'Deploy and manage apps on Amazon Web Services.',
+        },
+      ]);
     }
   }, []);
 
@@ -111,19 +137,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const removeUser = () => setUser(null);
-
   const updateUser = (updatedUser: User) => setUser(updatedUser);
-
-
 
   return (
     <UserContext.Provider
       value={{
         user,
         isAdmin,
+        skills,
         updateUser,
         removeUser,
-        
+        setSkills,
       }}
     >
       {children}
