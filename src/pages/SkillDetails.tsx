@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // ✅ Import useState
 import { useParams } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useUserContext } from '../contexts/UserContext';
@@ -8,11 +8,23 @@ const SkillDetails: React.FC = () => {
   const { skills } = useSkillContext();
   const { user } = useUserContext();
 
+  const [requestSent, setRequestSent] = useState(false); // ✅ Track request state
+
   const skill = skills.find(s => s.id === Number(id));
   if (!skill) return <p>Skill not found</p>;
 
   const handleExchangeRequest = () => {
+   
+    if (requestSent) {
+    const confirmCancel = confirm("❌ Cancel your exchange request?");
+    if (confirmCancel) {
+      setRequestSent(false);
+      alert("Request canceled.");
+    }
+  } else {
+    setRequestSent(true);
     alert(`🔁 Request sent to ${skill.user.name} to exchange skills!`);
+  }
     // בעתיד אפשר לקרוא ל־API אמיתי כאן
   };
 
@@ -30,8 +42,14 @@ const SkillDetails: React.FC = () => {
       </div>
 
       {user?.email !== skill.user.email && (
-        <button style={styles.button} onClick={handleExchangeRequest}>
-          🤝 Send Exchange Request
+        <button
+          style={{
+            ...styles.button,
+            ...(requestSent ? styles.pendingText : {}),
+          }}
+          onClick={handleExchangeRequest}
+        >
+          {requestSent ? '⏳ Pending Request' : '🤝 Send Exchange Request'}
         </button>
       )}
     </div>
@@ -89,6 +107,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '0.5rem',
     cursor: 'pointer',
     transition: 'background 0.2s ease-in-out',
+  },
+  pendingText: {
+    backgroundColor: '#e5e7eb',
+    color: '#374151',
+    cursor: 'default',
+    padding: '10px 20px',
   },
 };
 
