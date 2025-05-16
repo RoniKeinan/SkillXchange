@@ -27,7 +27,7 @@ const ProfileScreen: React.FC = () => {
         <div style={styles.topBar}>
           <div style={styles.buttonGroup}>
             <div style={styles.iconWrapper}>
-              <button onClick={() => navigate('/messages')} style={styles.iconButton}>
+              <button onClick={() => navigate('/PendingMessages')} style={styles.iconButton}>
                 <FiMail size={20} />
               </button>
               {unreadMessages > 0 && (
@@ -36,7 +36,7 @@ const ProfileScreen: React.FC = () => {
             </div>
 
             <div style={styles.iconWrapper}>
-              <button onClick={() => navigate('/chats')} style={styles.iconButton}>
+              <button onClick={() => navigate('/ChatList')} style={styles.iconButton}>
                 <FiMessageCircle size={20} />
               </button>
               {unreadChats > 0 && (
