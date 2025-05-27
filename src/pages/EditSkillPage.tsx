@@ -65,7 +65,6 @@ const EditSkillPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
-
   const isAddingNewCategory = selectedCategory === 'new';
 
   useEffect(() => {
@@ -88,8 +87,9 @@ const EditSkillPage: React.FC = () => {
 
     if (isAddingNewCategory && !categories.some(cat => cat.name.toLowerCase() === categoryName.toLowerCase())) {
       addCategory(categoryName);
+      setSelectedCategory(categoryName);
     }
-
+    
     updateSkill({
       ...skill,
       name: skillName,
