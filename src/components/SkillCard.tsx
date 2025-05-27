@@ -20,7 +20,7 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, onClick }) => {
   };
 
   return (
-    <div style={styles.skillCard} onClick={handleClick}>
+    <div style={styles.skillCard} onClick={handleClick} >
       <div style={styles.skillName}>{skill.name}</div>
       <div style={styles.skillCategory}>Category: {skill.category}</div>
       <div style={styles.skillDescription}>{skill.description}</div>

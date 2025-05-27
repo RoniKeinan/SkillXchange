@@ -7,6 +7,8 @@ import CategoryPage from './pages/CategoryPage';
 import SkillDetails from './pages/SkillDetails';
 import ChatList from './pages/ChatList';
 import PendingMessages from './pages/PendingMessages';
+import MySkillDetails from './pages/MySkillDetails';
+import EditSkillPage from './pages/EditSkillPage';
 
 const App: React.FC = () => {
   return (
@@ -20,6 +22,8 @@ const App: React.FC = () => {
           <Route path="/AddSkill" element={<AddSkill />} />
           <Route path="/category/:name" element={<CategoryPage />} />
           <Route path="/skill/:id" element={<SkillDetails />} />
+          <Route path="/MySkill/:id" element={<MySkillDetails />} />
+          <Route path="/EditSkill/:id" element={<EditSkillPage />} />
           <Route path="/ChatList" element={<ChatList />} />
           <Route path="/PendingMessages" element={<PendingMessages />} />
 

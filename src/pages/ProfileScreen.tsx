@@ -72,9 +72,10 @@ const ProfileScreen: React.FC = () => {
             {skills.length > 0 ? (
               skills.map((skill) => (
                 <SkillCard
+                  key={skill.id}
                   skill={skill}
                   onClick={(selectedSkill) => {
-                    console.log('Clicked on skill:', selectedSkill);
+                   navigate(`/MySkill/${selectedSkill.id}`) 
                   }}
                 />
 

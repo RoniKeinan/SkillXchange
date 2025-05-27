@@ -29,6 +29,8 @@ interface UserContextType {
   updateUser: (user: User) => void;
   removeUser: () => void;
   setSkills: (skills: Skill[]) => void;
+  updateSkill: (updatedSkill: Skill) => void;
+  deleteSkill: (skillId: number) => void;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -138,7 +140,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeUser = () => setUser(null);
   const updateUser = (updatedUser: User) => setUser(updatedUser);
-
+ const updateSkill = (updatedSkill: Skill) => {
+    setSkills((prev) =>
+      prev.map((skill) =>
+        skill.id === updatedSkill.id ? updatedSkill : skill
+      )
+    );
+  };
+  const deleteSkill = (skillId: number) => {
+  setSkills((prev) => prev.filter((skill) => skill.id !== skillId));
+};
   return (
     <UserContext.Provider
       value={{
@@ -148,6 +159,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateUser,
         removeUser,
         setSkills,
+        updateSkill,
+        deleteSkill
       }}
     >
       {children}
