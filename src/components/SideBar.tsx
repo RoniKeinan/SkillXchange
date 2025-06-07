@@ -101,14 +101,21 @@ const SideBar: React.FC = () => {
         <nav>
           <ul style={navListStyle}>
             <li>
-              <Link to="/" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}onClick={() => setIsOpen(!isOpen)}>
+              <Link to="/" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>
                 Home
               </Link>
             </li>
             <li>
-              <a href="#" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}onClick={() => setIsOpen(!isOpen)}>
+              <a
+                href="https://us-east-1qm0ueiz0l.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=1h0smv7g3m91qshr4epscp3ual&response_type=code&scope=openid+email+profile&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F"
+                style={linkStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onClick={() => setIsOpen(!isOpen)}
+              >
                 Login
               </a>
+
             </li>
             <li>
               <Link to="/ProfileScreen" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>
@@ -116,7 +123,7 @@ const SideBar: React.FC = () => {
               </Link>
             </li>
             <li>
-              <Link to="/AddSkill" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}onClick={() => setIsOpen(!isOpen)}>
+              <Link to="/AddSkill" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>
                 Add Skill
               </Link>
             </li>
