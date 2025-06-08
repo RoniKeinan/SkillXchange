@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import isTokenValid from "../components/isTokenValid";
-import { useNavigate } from 'react-router-dom';
+import { href, useNavigate } from 'react-router-dom';
+import ConfirmModal from '../components/ConfirmModal';
 
 interface Skill {
   id: number;
@@ -49,9 +50,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+
     const url = window.location.href;
 
-    // If URL contains tokens, extract and store them, then clear the hash
+    // Step 1: If the URL contains tokens, extract and store them
     if (url.includes("id_token") && url.includes("access_token")) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const idToken = hashParams.get("id_token");
@@ -60,102 +62,54 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (idToken && accessToken) {
         localStorage.setItem("idToken", idToken);
         localStorage.setItem("accessToken", accessToken);
+
         // Clear the hash so it doesn't get processed again
         window.history.replaceState(null, "", window.location.pathname + window.location.search);
       }
     }
 
+    // Step 2: Get tokens from localStorage
     const idToken = localStorage.getItem("idToken");
     const accessToken = localStorage.getItem("accessToken");
 
-    if (idToken && accessToken && isTokenValid(idToken)) {
-      const [userId, email] = DecodeIDToken(idToken);
-      console.log(userId, email)
-      fetch("https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/User", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id:userId, email }),
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Server error: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then((data) => setUser(data.user))
-        .catch((error) => {
-          console.error("API call failed:", error);
-          navigate("/ErrorPage");
-        });
-    } else {
-      // Fallback: fake user & default skills
-      const fakeUser: User = {
-        firstName: "Itai",
-        lastName: "Glipoliti",
-        phone: "0501234567",
-        email: "itai@example.com",
-        password: "fakepassword",
-        birthDate: "1999-01-01",
-        city: "Netanya",
-        street: "Herzl",
-        houseNumber: "5",
-        image: "https://i.pravatar.cc/150?img=3",
-      };
-      setUser(fakeUser);
-      setIsAdmin(false);
+    console.log(idToken,accessToken)
 
-      setSkills([
-        {
-          id: 1,
-          name: 'Web Development',
-          category: 'Technology',
-          description: 'Build modern websites and applications using HTML, CSS, JS.',
-        },
-        {
-          id: 2,
-          name: 'Node.js',
-          category: 'Technology',
-          description: 'Backend development using Node.js.',
-        },
-        {
-          id: 3,
-          name: 'AWS',
-          category: 'Cloud',
-          description: 'Deploy and manage apps on Amazon Web Services.',
-        },
-      ]);
+    // Step 3: If tokens are missing or invalid, logout
+    if (!idToken || !accessToken || !isTokenValid(idToken)) {
+      setUser(null);
+      return;
     }
+
+    // Step 4: Tokens are valid — fetch user from backend
+    const [userId, email] = DecodeIDToken(idToken);
+
+    fetch("https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/User", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: userId, email }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => setUser(data.user))
+      .catch((error) => {
+        console.error("API call failed:", error);
+        navigate("/ErrorPage");
+      });
   }, []);
 
-  // useEffect(() => {
-  //   const checkAdminStatus = async () => {
-  //     const idToken = localStorage.getItem("idToken");
-  //     if (idToken && isTokenValid(idToken)) {
-  //       const [userId] = DecodeIDToken(idToken);
-  //       try {
-  //         const response = await fetch("https://esg7w0u40m.execute-api.us-east-1.amazonaws.com/Dev/Admin", {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Authorization: idToken,
-  //           },
-  //           body: JSON.stringify({ Username: userId }),
-  //         });
 
-  //         const data = await response.json();
-  //         setIsAdmin(data.isAdmin);
-  //       } catch (err) {
-  //         console.error("Error fetching admin status:", err);
-  //       }
-  //     }
-  //   };
 
-  //   checkAdminStatus();
-  // }, []);
+const removeUser = () => {
+  localStorage.removeItem("idToken");
+  localStorage.removeItem("accessToken"); 
+  window.location.href = "https://us-east-1qm0ueiz0l.auth.us-east-1.amazoncognito.com/logout?client_id=1h0smv7g3m91qshr4epscp3ual&logout_uri=http://localhost:5173/";
+ 
+};
 
-  const removeUser = () => setUser(null);
   const updateUser = (updatedUser: User) => setUser(updatedUser);
   const updateSkill = (updatedSkill: Skill) => {
     setSkills((prev) =>
