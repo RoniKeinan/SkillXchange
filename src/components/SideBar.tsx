@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
 // ודא שאתה מעדכן את הנתיב הנכון כאן:
 import logo from '../assets/images/logo.png';
+import { useUserContext } from '../contexts/UserContext';
 
 const SIDEBAR_WIDTH = 240;
 
 const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { user, setUser } = useUserContext();
   const buttonStyle: CSSProperties = {
     position: 'fixed',
     top: '1rem',
@@ -86,6 +87,12 @@ const SideBar: React.FC = () => {
     e.currentTarget.style.transform = 'scale(1)';
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.clear();
+   window.location.href = `https://us-east-1qm0ueiz0l.auth.us-east-1.amazoncognito.com/logout?client_id=1h0smv7g3m91qshr4epscp3ual&logout_uri=http://localhost:5173/`;
+  };
+
   return (
     <>
       <button
@@ -105,17 +112,20 @@ const SideBar: React.FC = () => {
                 Home
               </Link>
             </li>
-            <li>
-              <a
-                href="https://us-east-1qm0ueiz0l.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=1h0smv7g3m91qshr4epscp3ual&response_type=code&scope=openid+email+profile&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F"
-                style={linkStyle}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                Login
-              </a>
-
+            <li
+              style={linkStyle}
+              onClick={user ? handleLogout : () => setIsOpen(false)}
+            >
+              {user ? (
+                'Logout'
+              ) : (
+                <a
+                  href="https://us-east-1qm0ueiz0l.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=1h0smv7g3m91qshr4epscp3ual&response_type=token&scope=openid+email+profile&redirect_uri=http://localhost:5173/"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  Login
+                </a>
+              )}
             </li>
             <li>
               <Link to="/ProfileScreen" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>

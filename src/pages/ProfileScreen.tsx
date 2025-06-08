@@ -21,7 +21,7 @@ const ProfileScreen: React.FC = () => {
     );
   }
 
-  return (
+return (
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.topBar}>
@@ -30,21 +30,18 @@ const ProfileScreen: React.FC = () => {
               <button onClick={() => navigate('/PendingMessages')} style={styles.iconButton}>
                 <FiMail size={20} />
               </button>
-              {unreadMessages > 0 && (
-                <div style={styles.badge}>{unreadMessages}</div>
-              )}
+              {unreadMessages > 0 && <div style={styles.badge}>{unreadMessages}</div>}
             </div>
 
             <div style={styles.iconWrapper}>
               <button onClick={() => navigate('/ChatList')} style={styles.iconButton}>
                 <FiMessageCircle size={20} />
               </button>
-              {unreadChats > 0 && (
-                <div style={styles.badge}>{unreadChats}</div>
-              )}
+              {unreadChats > 0 && <div style={styles.badge}>{unreadChats}</div>}
             </div>
           </div>
         </div>
+
         <div style={styles.topSection}>
           <img style={styles.image} src={user.image} alt={`${user.firstName} ${user.lastName}`} />
           <div style={styles.nameBlock}>
@@ -74,16 +71,22 @@ const ProfileScreen: React.FC = () => {
                 <SkillCard
                   key={skill.id}
                   skill={skill}
-                  onClick={(selectedSkill) => {
-                   navigate(`/MySkill/${selectedSkill.id}`) 
-                  }}
+                  onClick={(selectedSkill) => navigate(`/MySkill/${selectedSkill.id}`)}
                 />
-
               ))
             ) : (
               <span>No skills listed.</span>
             )}
           </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <button
+            style={styles.editButton}
+            onClick={() => navigate('/EditProfile')}
+          >
+            Edit Profile
+          </button>
         </div>
       </div>
     </div>
@@ -215,6 +218,15 @@ const styles = {
     fontSize: '1rem',
     color: '#4b5563',
   },
+  editButton: {
+  padding: '0.6rem 1.2rem',
+  fontSize: '1rem',
+  backgroundColor: '#007bff',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '8px',
+  cursor: 'pointer',
+},
 };
 
 export default ProfileScreen;

@@ -31,6 +31,7 @@ interface UserContextType {
   setSkills: (skills: Skill[]) => void;
   updateSkill: (updatedSkill: Skill) => void;
   deleteSkill: (skillId: number) => void;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -49,6 +50,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const url = window.location.href;
+
+    // If URL contains tokens, extract and store them, then clear the hash
     if (url.includes("id_token") && url.includes("access_token")) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const idToken = hashParams.get("id_token");
@@ -57,23 +60,37 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (idToken && accessToken) {
         localStorage.setItem("idToken", idToken);
         localStorage.setItem("accessToken", accessToken);
-        window.location.hash = "/";
+        // Clear the hash so it doesn't get processed again
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
       }
     }
 
     const idToken = localStorage.getItem("idToken");
-    if (idToken && isTokenValid(idToken)) {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (idToken && accessToken && isTokenValid(idToken)) {
       const [userId, email] = DecodeIDToken(idToken);
-      fetch("https://esg7w0u40m.execute-api.us-east-1.amazonaws.com/Dev/User", {
+      console.log(userId, email)
+      fetch("https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/User", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: userId, email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id:userId, email }),
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Server error: ${res.status}`);
+          }
+          return res.json();
+        })
         .then((data) => setUser(data.user))
-        .catch(() => navigate("/ErrorPage"));
+        .catch((error) => {
+          console.error("API call failed:", error);
+          navigate("/ErrorPage");
+        });
     } else {
-      // משתמש פיקטיבי
+      // Fallback: fake user & default skills
       const fakeUser: User = {
         firstName: "Itai",
         lastName: "Glipoliti",
@@ -112,35 +129,35 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      const idToken = localStorage.getItem("idToken");
-      if (idToken && isTokenValid(idToken)) {
-        const [userId] = DecodeIDToken(idToken);
-        try {
-          const response = await fetch("https://esg7w0u40m.execute-api.us-east-1.amazonaws.com/Dev/Admin", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: idToken,
-            },
-            body: JSON.stringify({ Username: userId }),
-          });
+  // useEffect(() => {
+  //   const checkAdminStatus = async () => {
+  //     const idToken = localStorage.getItem("idToken");
+  //     if (idToken && isTokenValid(idToken)) {
+  //       const [userId] = DecodeIDToken(idToken);
+  //       try {
+  //         const response = await fetch("https://esg7w0u40m.execute-api.us-east-1.amazonaws.com/Dev/Admin", {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: idToken,
+  //           },
+  //           body: JSON.stringify({ Username: userId }),
+  //         });
 
-          const data = await response.json();
-          setIsAdmin(data.isAdmin);
-        } catch (err) {
-          console.error("Error fetching admin status:", err);
-        }
-      }
-    };
+  //         const data = await response.json();
+  //         setIsAdmin(data.isAdmin);
+  //       } catch (err) {
+  //         console.error("Error fetching admin status:", err);
+  //       }
+  //     }
+  //   };
 
-    checkAdminStatus();
-  }, []);
+  //   checkAdminStatus();
+  // }, []);
 
   const removeUser = () => setUser(null);
   const updateUser = (updatedUser: User) => setUser(updatedUser);
- const updateSkill = (updatedSkill: Skill) => {
+  const updateSkill = (updatedSkill: Skill) => {
     setSkills((prev) =>
       prev.map((skill) =>
         skill.id === updatedSkill.id ? updatedSkill : skill
@@ -148,12 +165,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
   const deleteSkill = (skillId: number) => {
-  setSkills((prev) => prev.filter((skill) => skill.id !== skillId));
-};
+    setSkills((prev) => prev.filter((skill) => skill.id !== skillId));
+  };
   return (
     <UserContext.Provider
       value={{
         user,
+        setUser,
         isAdmin,
         skills,
         updateUser,
