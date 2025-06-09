@@ -1,5 +1,4 @@
 import React, { useState, CSSProperties, useRef } from 'react';
-import { useSkillContext } from '../contexts/SkillsContext';
 import { useCategoryContext } from '../contexts/CategoryContext';
 import { useUserContext } from '../contexts/UserContext';
 

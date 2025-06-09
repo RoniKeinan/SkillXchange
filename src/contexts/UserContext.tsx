@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import isTokenValid from "../components/isTokenValid";
-import { href, useNavigate } from 'react-router-dom';
-import ConfirmModal from '../components/ConfirmModal';
+import { useNavigate } from 'react-router-dom';
+
 
 interface Skill {
   id: number;
@@ -11,6 +11,7 @@ interface Skill {
 }
 
 interface User {
+  id: string;
   firstName: string;
   lastName: string;
   phone: string;
@@ -72,7 +73,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const idToken = localStorage.getItem("idToken");
     const accessToken = localStorage.getItem("accessToken");
 
-    console.log(idToken,accessToken)
 
     // Step 3: If tokens are missing or invalid, logout
     if (!idToken || !accessToken || !isTokenValid(idToken)) {
@@ -94,7 +94,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         return res.json();
       })
-      .then((data) => setUser(data.user))
+      .then((data) => {setUser(data.user)})
       .catch((error) => {
         console.error("API call failed:", error);
         navigate("/ErrorPage");

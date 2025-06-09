@@ -8,6 +8,8 @@ const ProfileScreen: React.FC = () => {
   const { user, skills } = useUserContext();
   const navigate = useNavigate();
 
+  console.log(user)
+
   const unreadMessages = 3;
   const unreadChats = 1;
   if (!user) {
