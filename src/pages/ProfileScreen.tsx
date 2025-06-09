@@ -80,14 +80,25 @@ return (
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-          <button
-            style={styles.editButton}
-            onClick={() => navigate('/EditProfile')}
-          >
-            Edit Profile
-          </button>
-        </div>
+       <div style={styles.editButtonsContainer}>
+  <button
+    style={styles.editButton}
+    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
+    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
+    onClick={() => navigate('/AddSkill')}
+  >
+    Add Skill
+  </button>
+  <button
+    style={styles.editButton}
+    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
+    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
+    onClick={() => navigate('/EditProfile')}
+  >
+    Edit Profile
+  </button>
+</div>
+
       </div>
     </div>
   );
@@ -218,15 +229,28 @@ const styles = {
     fontSize: '1rem',
     color: '#4b5563',
   },
-  editButton: {
-  padding: '0.6rem 1.2rem',
+editButtonsContainer: {
+  display: 'flex',
+  justifyContent:'left',
+  gap: '1rem',
+  marginTop: '2rem',
+},
+
+editButton: {
+  padding: '0.75rem 1.5rem',
   fontSize: '1rem',
   backgroundColor: '#007bff',
   color: '#fff',
   border: 'none',
-  borderRadius: '8px',
+  borderRadius: '10px',
   cursor: 'pointer',
+  boxShadow: '0 4px 8px rgba(0, 123, 255, 0.2)',
+  transition: 'all 0.3s ease',
 },
+editButtonHover: {
+  backgroundColor: '#0056b3',
+},
+
 };
 
 export default ProfileScreen;
