@@ -12,6 +12,7 @@ const CategoryPage: React.FC = () => {
     (skill) => skill.category.toLowerCase() === name?.toLowerCase()
   );
 
+  console.log(filteredSkills)
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Skills in "{name}" Category</h2>
@@ -20,26 +21,29 @@ const CategoryPage: React.FC = () => {
           {filteredSkills.map((skill) => (
             <div
               key={skill.id}
-              style={{ ...styles.card, cursor: 'pointer' }} // הפוך ללחיץ
-              onClick={() => navigate(`/skill/${skill.id}`)} // נווט לעמוד סקיל
+              style={{ ...styles.card, cursor: 'pointer' }}
+              onClick={() => navigate(`/skill/${skill.id}`)}
             >
-              <h3 style={styles.skillName}>{skill.name}</h3>
+              {/* Skill image */}
+              {skill.images && skill.images.length > 0 && (
+                <img
+                  src={skill.images[0]}
+                  alt={skill.skillName}
+                  style={styles.skillImage}
+                />
+              )}
+
+              {/* Skill title and description */}
+              <h3 style={styles.skillName}>{skill.skillName}</h3>
               <p style={styles.description}>{skill.description}</p>
 
-              {/* User info */}
-              {skill.user && (
-                <div style={styles.userInfo}>
-                  <img
-                    src={skill.user.image}
-                    alt={skill.user.name}
-                    style={styles.avatar}
-                  />
-                  <div>
-                    <div style={styles.userName}>{skill.user.name}</div>
-                    <div style={styles.userEmail}>{skill.user.email}</div>
-                  </div>
+              {/* Contact info */}
+              <div style={styles.userInfo}>
+                <div>
+                  <div style={styles.userName}>{skill.contactName}</div>
+                  <div style={styles.userEmail}>{skill.contactEmail}</div>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
@@ -119,6 +123,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '1.125rem',
     color: '#6b7280',
   },
+  skillImage: {
+  width: '100%',
+  height: '150px',
+  objectFit: 'cover',
+  borderRadius: '8px',
+  marginBottom: '10px',
+},
 };
 
 export default CategoryPage;

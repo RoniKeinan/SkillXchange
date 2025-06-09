@@ -1,136 +1,85 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useCategoryContext } from './CategoryContext';
-import { useUserContext } from './UserContext'; // ייבוא של יוזר
+import { useUserContext } from './UserContext';
 
-// ממשק סקיל כולל יוזר
 export interface Skill {
-  id: number;
-  name: string;
+  id: string; // previously number, now string as per your JSON
+  skillName: string;
   category: string;
   description: string;
-  user: {
-    name: string;
-    email: string;
-    image: string;
-  };
+  contactName: string;
+  contactEmail: string;
+  images?: string[]; 
+ 
 }
 
-// ממשק הקונטקסט
 interface SkillContextType {
   skills: Skill[];
-  addSkill: (name: string, category: string, description: string) => void;
+ 
 }
 
-// יצירת הקונטקסט
 const SkillContext = createContext<SkillContextType | undefined>(undefined);
 
-// הוק שימוש בקונטקסט
 export const useSkillContext = () => {
   const context = useContext(SkillContext);
   if (!context) throw new Error('useSkillContext must be used within SkillProvider');
   return context;
 };
 
-// פרופס לטיפוס עבור SkillProvider
 interface SkillProviderProps {
   children: ReactNode;
 }
 
-// קומפוננטת הספק
 export const SkillProvider: React.FC<SkillProviderProps> = ({ children }) => {
   const { user } = useUserContext();
   const { addSkillToCategory, addCategory, categories } = useCategoryContext();
 
-  // סקילים עם יוזרים פיקטיביים
-  const [skills, setSkills] = useState<Skill[]>([
-    {
-      id: 1,
-      name: 'Web Development',
-      category: 'Technology',
-      description: 'Build modern websites and applications using HTML, CSS, JS.',
-      user: {
-        name: 'Alice Cohen',
-        email: 'alice@example.com',
-        image: 'https://i.pravatar.cc/150?img=10',
-      },
-    },
-    {
-      id: 2,
-      name: 'Graphic Design',
-      category: 'Creative',
-      description: 'Design eye-catching graphics for web and print.',
-      user: {
-        name: 'Ben Levi',
-        email: 'ben@example.com',
-        image: 'https://i.pravatar.cc/150?img=5',
-      },
-    },
-    {
-      id: 3,
-      name: 'Photography',
-      category: 'Creative',
-      description: 'Capture stunning photos with professional techniques.',
-      user: {
-        name: 'Charlie Mizrahi',
-        email: 'charlie@example.com',
-        image: 'https://i.pravatar.cc/150?img=8',
-      },
-    },
-    {
-      id: 4,
-      name: 'Public Speaking',
-      category: 'Soft Skills',
-      description: 'Learn to communicate effectively and confidently in public.',
-      user: {
-        name: 'Dana Shafir',
-        email: 'dana@example.com',
-        image: 'https://i.pravatar.cc/150?img=15',
-      },
-    },
-    {
-      id: 5,
-      name: 'Piano',
-      category: 'Music',
-      description: 'Play piano from beginner to advanced level.',
-      user: {
-        name: 'Eli Kaplan',
-        email: 'eli@example.com',
-        image: 'https://i.pravatar.cc/150?img=25',
-      },
-    },
-  ]);
+  const [skills, setSkills] = useState<Skill[]>([]);
 
-  // פונקציה להוספת סקיל חדש
-  const addSkill = (name: string, category: string, description: string) => {
-    if (!user) return;
+  // Fetch skills from the API
+  const getAllSkills = async () => {
+    try {
+      const response = await fetch('https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/Skill', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    const newSkill: Skill = {
-      id: skills.length + 1,
-      name,
-      category,
-      description,
-      user: {
-        name: `${user.firstName} ${user.lastName}`,
-        email: user.email,
-        image: user.image,
-      },
-    };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    setSkills((prev) => [...prev, newSkill]);
+      const data = await response.json();
+      console.log("Skills from API:", data);
 
-    const categoryExists = categories.some(
-      (cat) => cat.name.toLowerCase() === category.toLowerCase()
-    );
+      // Make sure data is in correct format
+      if (Array.isArray(data.skills)) {
+        setSkills(data.skills);
 
-    if (!categoryExists) {
-      addCategory(category);
+        // Optional: also populate categories if you want
+        data.skills.forEach((skill: Skill) => {
+          const exists = categories.some(c => c.name.toLowerCase() === skill.category.toLowerCase());
+          if (!exists) {
+            addCategory(skill.category);
+          }
+          addSkillToCategory(skill.category, skill);
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching skills:', error);
     }
-
-    addSkillToCategory(category, newSkill);
   };
 
+  // Load skills once on mount
+  useEffect(() => {
+    getAllSkills();
+  }, []);
+
+ 
+
   return (
-    <SkillContext.Provider value={{ skills, addSkill }}>
+    <SkillContext.Provider value={{ skills}}>
       {children}
     </SkillContext.Provider>
   );

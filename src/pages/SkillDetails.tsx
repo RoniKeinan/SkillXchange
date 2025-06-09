@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // ✅ Import useState
+import React, { useState } from 'react'; 
 import { useParams } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useUserContext } from '../contexts/UserContext';
@@ -8,40 +8,48 @@ const SkillDetails: React.FC = () => {
   const { skills } = useSkillContext();
   const { user } = useUserContext();
 
-  const [requestSent, setRequestSent] = useState(false); // ✅ Track request state
+  const [requestSent, setRequestSent] = useState(false);
 
-  const skill = skills.find(s => s.id === Number(id));
+  // Fix: search by string id, no Number conversion
+  const skill = skills.find(s => s.id === id);
+  console.log(skill);
   if (!skill) return <p>Skill not found</p>;
 
   const handleExchangeRequest = () => {
-   
     if (requestSent) {
-    const confirmCancel = confirm("❌ Cancel your exchange request?");
-    if (confirmCancel) {
-      setRequestSent(false);
-      alert("Request canceled.");
+      const confirmCancel = confirm("❌ Cancel your exchange request?");
+      if (confirmCancel) {
+        setRequestSent(false);
+        alert("Request canceled.");
+      }
+    } else {
+      setRequestSent(true);
+      alert(`🔁 Request sent to ${skill.contactName} to exchange skills!`);
     }
-  } else {
-    setRequestSent(true);
-    alert(`🔁 Request sent to ${skill.user.name} to exchange skills!`);
-  }
-    // בעתיד אפשר לקרוא ל־API אמיתי כאן
+    // In the future you can call a real API here
   };
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>{skill.name}</h2>
+      {/* Use skillName instead of name */}
+      <h2 style={styles.title}>{skill.skillName}</h2>
       <p style={styles.description}>{skill.description}</p>
 
       <div style={styles.userInfo}>
-        <img src={skill.user.image} alt={skill.user.name} style={styles.avatar} />
+        {/* There is no user object, use contactName and contactEmail */}
+        <img 
+          src={skill.images && skill.images.length > 0 ? skill.images[0] : 'https://via.placeholder.com/60'} 
+          alt={skill.contactName} 
+          style={styles.avatar} 
+        />
         <div>
-          <div style={styles.userName}>{skill.user.name}</div>
-          <div style={styles.userEmail}>{skill.user.email}</div>
+          <div style={styles.userName}>{skill.contactName}</div>
+          <div style={styles.userEmail}>{skill.contactEmail}</div>
         </div>
       </div>
 
-      {user?.email !== skill.user.email && (
+      {/* Compare user email to contactEmail */}
+      {user?.email !== skill.contactEmail && (
         <button
           style={{
             ...styles.button,

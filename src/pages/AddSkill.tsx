@@ -56,7 +56,7 @@ const buttonStyle: CSSProperties = {
 };
 
 const AddSkillPage: React.FC = () => {
-  const { addSkill } = useSkillContext();
+ 
   const { categories, addCategory } = useCategoryContext();
   const { user } = useUserContext();
   const [images, setImages] = useState<string[]>([]);
