@@ -46,18 +46,19 @@ def lambda_handler(event, context):
         if not user:
             return response(404, {"error": "User not found"})
 
-        old_email = user.get("email")  # שמור את האימייל המקורי (ה-id הישן)
+        old_email = user.get("email")
         new_email = body.get("email")
         email_changed = new_email and new_email != old_email
 
         non_updatable_fields = {"id"}
 
-        image_base64 = body.get("image")
-        image_url = None
+        image_input = body.get("image", "").strip()
+        image_url = user.get("image")  # default to existing image
 
-        if image_base64:
+        if image_input.startswith("data:image/"):
+            # New base64 image
             try:
-                image_data = base64.b64decode(image_base64.split(",")[-1])
+                image_data = base64.b64decode(image_input.split(",")[-1])
             except Exception as e:
                 return response(400, {"error": f"Invalid image base64 data: {str(e)}"})
 
@@ -71,7 +72,15 @@ def lambda_handler(event, context):
             )
 
             image_url = f"https://{bucket_name}.s3.amazonaws.com/{image_filename}"
-            body["image"] = image_url
+
+        elif image_input.startswith("http://") or image_input.startswith("https://"):
+            # Valid image URL, use as-is
+            image_url = image_input
+
+        # else: image was blank or invalid, keep old one
+
+        # Update the body with final image URL (new or existing)
+        body["image"] = image_url
 
         if email_changed:
             new_user_item = user.copy()

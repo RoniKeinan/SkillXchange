@@ -21,7 +21,7 @@ interface User {
   city: string;
   street: string;
   houseNumber: string;
-  image: string;
+  image?: string;
 }
 
 interface UserContextType {

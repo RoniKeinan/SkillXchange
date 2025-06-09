@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
- id:string;
+    id: string;
     firstName: string;
     lastName: string;
     phone: string;
@@ -11,11 +12,12 @@ interface User {
     city: string;
     street: string;
     houseNumber: string;
-    image: string;
+    image?: string;
 }
 
 const EditProfile: React.FC = () => {
-    const { user ,setUser} = useUserContext();
+    const { user, setUser } = useUserContext();
+    const navigate = useNavigate();
 
     const [updateduser, setupdatedUser] = useState<User>({
         id: user?.id || '',
@@ -33,11 +35,13 @@ const EditProfile: React.FC = () => {
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
-    if (user) {
-        setupdatedUser(user);
-    }
-}, [user]);
-
+        if (user) {
+            setupdatedUser({
+                ...user,
+                image: user.image || '', // ודא שתמונה קיימת נשמרת
+            });
+        }
+    }, [user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -54,21 +58,27 @@ const EditProfile: React.FC = () => {
                     image: reader.result as string,
                 }));
             };
-            reader.readAsDataURL(file); // Converts the image to a base64 string
+            reader.readAsDataURL(file);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-     
 
+        // ננקה את המשתמש לשליחה לשרת
+        const cleanedUser: Partial<User> = { ...updateduser };
+
+        if (!cleanedUser.image || cleanedUser.image.trim() === "") {
+            delete cleanedUser.image; // אם התמונה ריקה, אל תשלח אותה
+        }
+        console.log("Sending user:", cleanedUser);
         try {
             const response = await fetch('https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/User', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(updateduser),
+                body: JSON.stringify(cleanedUser), // נשלח את cleanedUser, לא updateduser
             });
 
             if (!response.ok) {
@@ -77,7 +87,8 @@ const EditProfile: React.FC = () => {
 
             const data = await response.json();
             console.log('User updated successfully:', data);
-              setUser(data.updatedUser)
+            setUser(data.updatedUser);
+            navigate('/ProfileScreen');
         } catch (error) {
             console.error('Error updating user:', error);
         }
