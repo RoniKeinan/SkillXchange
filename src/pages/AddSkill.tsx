@@ -1,6 +1,7 @@
-import React, { useState, CSSProperties } from 'react';
+import React, { useState, CSSProperties, useRef } from 'react';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useCategoryContext } from '../contexts/CategoryContext';
+import { useUserContext } from '../contexts/UserContext';
 
 const containerStyle: CSSProperties = {
   maxWidth: '500px',
@@ -57,7 +58,8 @@ const buttonStyle: CSSProperties = {
 const AddSkillPage: React.FC = () => {
   const { addSkill } = useSkillContext();
   const { categories, addCategory } = useCategoryContext();
-
+  const { user } = useUserContext();
+  const [images, setImages] = useState<string[]>([]);
   const [skillName, setSkillName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -65,11 +67,19 @@ const AddSkillPage: React.FC = () => {
 
   const isAddingNewCategory = selectedCategory === 'new';
 
-  const handleAddSkill = () => {
+  // טיפוס נכון ל-ref של input קבצים
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAddSkill = async () => {
     const categoryName = isAddingNewCategory ? newCategoryName.trim() : selectedCategory;
 
     if (!skillName.trim() || !categoryName || !description.trim()) {
       alert('Please fill in all fields: skill name, category, and description.');
+      return;
+    }
+
+    if (!user) {
+      alert("You must be logged in to add a skill.");
       return;
     }
 
@@ -80,11 +90,48 @@ const AddSkillPage: React.FC = () => {
       addCategory(categoryName);
     }
 
-    addSkill(skillName, categoryName, description);
-    setSkillName('');
-    setDescription('');
-    setSelectedCategory('');
-    setNewCategoryName('');
+    const payload = {
+      title: skillName,
+      category: categoryName,
+      description: description,
+      contactName: `${user.firstName} ${user.lastName}`,
+      contactEmail: user.email,
+      userId: user.email,
+      images: images,
+    };
+
+    try {
+      const response = await fetch('https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/Skill', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Skill created:', result);
+        alert('Skill added successfully!');
+
+        // איפוס השדות כולל שדה הקבצים
+        setSkillName('');
+        setDescription('');
+        setSelectedCategory('');
+        setNewCategoryName('');
+        setImages([]);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';  // איפוס שדה הקבצים
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('Error:', errorData);
+        alert('Failed to add skill.');
+      }
+    } catch (error) {
+      console.error('Request failed:', error);
+      alert('An error occurred while adding the skill.');
+    }
   };
 
   return (
@@ -141,6 +188,37 @@ const AddSkillPage: React.FC = () => {
           />
         </div>
       )}
+
+      <div style={formGroupStyle}>
+        <label style={labelStyle}>Upload Images:</label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          ref={fileInputRef} // כאן ה-ref
+          onChange={async (e) => {
+            if (!e.target.files) return;
+            const files = Array.from(e.target.files);
+            const base64Images = await Promise.all(
+              files.map(file => {
+                return new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    if (typeof reader.result === 'string') {
+                      resolve(reader.result);
+                    } else {
+                      reject(new Error('FileReader result is not a string'));
+                    }
+                  };
+                  reader.onerror = reject;
+                  reader.readAsDataURL(file);
+                });
+              })
+            );
+            setImages(base64Images);
+          }}
+        />
+      </div>
 
       <button style={buttonStyle} onClick={handleAddSkill}>
         Add Skill
