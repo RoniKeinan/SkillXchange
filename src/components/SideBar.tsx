@@ -1,10 +1,11 @@
 import React, { useState, CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
 // ודא שאתה מעדכן את הנתיב הנכון כאן:
 import logo from '../assets/images/logo.png';
 import { useUserContext } from '../contexts/UserContext';
 import ConfirmModal from '../components/ConfirmModal'; 
+import { useRequireAuth } from '../hooks/useRequireAuth';
 
 const SIDEBAR_WIDTH = 240;
 
@@ -12,6 +13,9 @@ const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, removeUser } = useUserContext();
    const [showConfirm, setShowConfirm] = useState(false);
+   const requireAuth = useRequireAuth();
+  const navigate = useNavigate();
+
   const buttonStyle: CSSProperties = {
     position: 'fixed',
     top: '1rem',
@@ -67,6 +71,7 @@ const SideBar: React.FC = () => {
   };
 
   const linkStyle: CSSProperties = {
+    cursor:"pointer",
     display: 'block',
     padding: '0.75rem 1rem',
     backgroundColor: '#f1f5f9',
@@ -163,10 +168,22 @@ const cancelLogout = () => {
               </Link>
             </li>
             <li>
-              <Link to="/AddSkill" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>
-                Add Skill
-              </Link>
-            </li>
+  <a
+  onClick={(e) => {
+    e.preventDefault();
+    requireAuth(() => {
+      setIsOpen(false);
+      navigate('/AddSkill'); 
+    });
+  }}
+  href="#"
+  style={linkStyle}
+  onMouseEnter={handleMouseEnter}
+  onMouseLeave={handleMouseLeave}
+>
+  Add Skill
+</a>
+</li>
           </ul>
         </nav>
       </aside>
