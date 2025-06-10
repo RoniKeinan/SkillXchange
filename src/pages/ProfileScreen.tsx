@@ -45,25 +45,32 @@ return (
         </div>
 
         <div style={styles.topSection}>
-          <img style={styles.image} src={user.image} alt={`${user.firstName} ${user.lastName}`} />
-          <div style={styles.nameBlock}>
-            <div style={styles.name}>{user.firstName} {user.lastName}</div>
-            <div style={styles.value}>{user.email}</div>
-            <div style={styles.value}>Phone: {user.phone}</div>
-          </div>
-        </div>
+  <img
+    style={styles.image}
+    src={user.image || 'https://via.placeholder.com/120'}
+  />
+  <div style={styles.nameBlock}>
+    <div style={styles.name}>
+      {user.firstName || 'First name not provided'} {user.lastName || ''}
+    </div>
+    <div style={styles.value}>{user.email || 'Email not provided'}</div>
+    <div style={styles.value}>Phone: {user.phone || 'Not provided'}</div>
+  </div>
+</div>
 
-        <div style={styles.section}>
-          <div style={styles.label}>Birth Date:</div>
-          <div style={styles.value}>{user.birthDate}</div>
-        </div>
+<div style={styles.section}>
+  <div style={styles.label}>Birth Date:</div>
+  <div style={styles.value}>{user.birthDate || 'Not provided'}</div>
+</div>
 
-        <div style={styles.section}>
-          <div style={styles.label}>Address:</div>
-          <div style={styles.value}>
-            {user.street} {user.houseNumber}, {user.city}
-          </div>
-        </div>
+<div style={styles.section}>
+  <div style={styles.label}>Address:</div>
+  <div style={styles.value}>
+    {(user.street && user.houseNumber && user.city)
+      ? `${user.street} ${user.houseNumber}, ${user.city}`
+      : 'Address not provided'}
+  </div>
+</div>
 
         <div style={styles.section}>
           <div style={styles.label}>Skills:</div>

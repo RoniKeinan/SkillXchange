@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useUserContext } from '../contexts/UserContext';
+import logo from '../assets/images/logo.png';
 
 const SkillDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,13 +33,18 @@ const SkillDetails: React.FC = () => {
   return (
     <div style={styles.container}>
       {/* Use skillName instead of name */}
+       <img 
+          src={skill.images && skill.images.length > 0 ? skill.images[0] : logo} 
+          alt={skill.contactName} 
+          style={styles.skillImage} 
+        />
       <h2 style={styles.title}>{skill.skillName}</h2>
       <p style={styles.description}>{skill.description}</p>
 
       <div style={styles.userInfo}>
         {/* There is no user object, use contactName and contactEmail */}
         <img 
-          src={skill.images && skill.images.length > 0 ? skill.images[0] : 'https://via.placeholder.com/60'} 
+           src={skill.images && skill.images.length > 0 ? skill.images[0] : logo} 
           alt={skill.contactName} 
           style={styles.avatar} 
         />
@@ -105,6 +111,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   userEmail: {
     fontSize: '0.9rem',
     color: '#6b7280',
+  },
+  skillImage:{
+    height: '190px',
+    objectFit: 'cover',
   },
   button: {
     padding: '0.75rem 1.5rem',

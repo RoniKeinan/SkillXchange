@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
+import logo from '../assets/images/logo.png';
 
 const CategoryPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
@@ -25,13 +26,11 @@ const CategoryPage: React.FC = () => {
               onClick={() => navigate(`/skill/${skill.id}`)}
             >
               {/* Skill image */}
-              {skill.images && skill.images.length > 0 && (
-                <img
-                  src={skill.images[0]}
-                  alt={skill.skillName}
-                  style={styles.skillImage}
-                />
-              )}
+              <img
+                src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+                alt={skill.skillName}
+                style={styles.skillImage}
+              />
 
               {/* Skill title and description */}
               <h3 style={styles.skillName}>{skill.skillName}</h3>
@@ -123,13 +122,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '1.125rem',
     color: '#6b7280',
   },
-  skillImage: {
-  width: '100%',
-  height: '150px',
-  objectFit: 'cover',
-  borderRadius: '8px',
-  marginBottom: '10px',
-},
+ skillImage:{
+    height: '190px',
+    objectFit: 'cover',
+  },
 };
 
 export default CategoryPage;

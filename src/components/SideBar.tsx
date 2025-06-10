@@ -4,7 +4,7 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 // ודא שאתה מעדכן את הנתיב הנכון כאן:
 import logo from '../assets/images/logo.png';
 import { useUserContext } from '../contexts/UserContext';
-import ConfirmModal from '../components/ConfirmModal'; 
+import ConfirmModal from '../components/ConfirmModal';
 import { useRequireAuth } from '../hooks/useRequireAuth';
 
 const SIDEBAR_WIDTH = 240;
@@ -12,8 +12,8 @@ const SIDEBAR_WIDTH = 240;
 const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, removeUser } = useUserContext();
-   const [showConfirm, setShowConfirm] = useState(false);
-   const requireAuth = useRequireAuth();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const requireAuth = useRequireAuth();
   const navigate = useNavigate();
 
   const buttonStyle: CSSProperties = {
@@ -71,7 +71,7 @@ const SideBar: React.FC = () => {
   };
 
   const linkStyle: CSSProperties = {
-    cursor:"pointer",
+    cursor: "pointer",
     display: 'block',
     padding: '0.75rem 1rem',
     backgroundColor: '#f1f5f9',
@@ -96,15 +96,15 @@ const SideBar: React.FC = () => {
 
 
 
-   const confirmLogout = () => {
-   removeUser();
+  const confirmLogout = () => {
+    removeUser();
   };
 
-const cancelLogout = () => {
+  const cancelLogout = () => {
     setShowConfirm(false);
   };
 
-    const handleLogout = () => {
+  const handleLogout = () => {
     setShowConfirm(true);
   };
 
@@ -163,27 +163,39 @@ const cancelLogout = () => {
               )}
             </li>
             <li>
-              <Link to="/ProfileScreen" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  requireAuth(() => {
+                    setIsOpen(false);
+                    navigate('/ProfileScreen');
+                  });
+                }}
+                href="#"
+                style={linkStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
                 Profile
-              </Link>
+              </a>
             </li>
             <li>
-  <a
-  onClick={(e) => {
-    e.preventDefault();
-    requireAuth(() => {
-      setIsOpen(false);
-      navigate('/AddSkill'); 
-    });
-  }}
-  href="#"
-  style={linkStyle}
-  onMouseEnter={handleMouseEnter}
-  onMouseLeave={handleMouseLeave}
->
-  Add Skill
-</a>
-</li>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  requireAuth(() => {
+                    setIsOpen(false);
+                    navigate('/AddSkill');
+                  });
+                }}
+                href="#"
+                style={linkStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                Add Skill
+              </a>
+            </li>
           </ul>
         </nav>
       </aside>
