@@ -162,6 +162,13 @@ const SideBar: React.FC = () => {
                 </a>
               )}
             </li>
+            {user && (
+              <li>
+                <Link to="/ProfileScreen" style={linkStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => setIsOpen(!isOpen)}>
+                  Profile
+                </Link>
+              </li>
+            )}
             <li>
               <a
                 onClick={(e) => {
