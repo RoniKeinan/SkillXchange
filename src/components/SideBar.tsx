@@ -169,23 +169,7 @@ const SideBar: React.FC = () => {
                 </Link>
               </li>
             )}
-            <li>
-              <a
-                onClick={(e) => {
-                  e.preventDefault();
-                  requireAuth(() => {
-                    setIsOpen(false);
-                    navigate('/ProfileScreen');
-                  });
-                }}
-                href="#"
-                style={linkStyle}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                Profile
-              </a>
-            </li>
+            
             <li>
               <a
                 onClick={(e) => {
