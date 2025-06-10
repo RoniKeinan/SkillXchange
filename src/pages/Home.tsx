@@ -12,6 +12,7 @@ const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [hoveredSkillId, setHoveredSkillId] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
+  
 
 
   const filteredCategories = categories.filter(category => {
