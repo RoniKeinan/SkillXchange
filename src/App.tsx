@@ -10,6 +10,7 @@ import PendingMessages from './pages/PendingMessages';
 import MySkillDetails from './pages/MySkillDetails';
 import EditSkillPage from './pages/EditSkillPage';
 import EditProflie from './pages/EditProfile';
+import UserProfileScreen from './pages/UserProfileScreen';
 
 const App: React.FC = () => {
   return (
@@ -28,6 +29,8 @@ const App: React.FC = () => {
           <Route path="/ChatList" element={<ChatList />} />
           <Route path="/PendingMessages" element={<PendingMessages />} />
           <Route path="/EditProfile" element={<EditProflie />} />
+          <Route path="/user/:email" element={<UserProfileScreen />} />
+
 
 
           {/* Add more routes here */}

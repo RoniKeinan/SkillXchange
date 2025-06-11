@@ -94,7 +94,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         return res.json();
       })
-      .then((data) => {setUser(data.user)})
+      .then((data) => { setUser(data.user) })
       .catch((error) => {
         console.error("API call failed:", error);
         navigate("/ErrorPage");
@@ -103,12 +103,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
 
-const removeUser = () => {
-  localStorage.removeItem("idToken");
-  localStorage.removeItem("accessToken"); 
-  window.location.href = "https://us-east-1dwfznry1h.auth.us-east-1.amazoncognito.com/logout?client_id=5qvgf43gd6c32ve6o5drt5c92d&logout_uri=http://localhost:5173/";
- 
-};
+  const removeUser = () => {
+    localStorage.removeItem("idToken");
+    localStorage.removeItem("accessToken");
+    window.location.href = "https://us-east-1dwfznry1h.auth.us-east-1.amazoncognito.com/logout?client_id=5qvgf43gd6c32ve6o5drt5c92d&logout_uri=http://localhost:5173/";
+
+  };
 
   const updateUser = (updatedUser: User) => setUser(updatedUser);
   const updateSkill = (updatedSkill: Skill) => {
