@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useCategoryContext } from '../contexts/CategoryContext';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/images/logo.png';
+import logoNoBg from '../assets/images/logoNoBg.png';
 import CategoryPopup from '../components/CategoryPopup';
+import { FaSearch, FaTimesCircle, FaThList } from 'react-icons/fa';
 
 const Home: React.FC = () => {
   const { skills } = useSkillContext();
   const { categories } = useCategoryContext();
   const [search, setSearch] = useState('');
-  const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
+  const [hoveredSkillId, setHoveredSkillId] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-
 
   const [searchResults, setSearchResults] = useState<{
     skills: typeof skills;
@@ -25,7 +25,7 @@ const Home: React.FC = () => {
 
   const handleSearchClick = () => {
     if (search === '') return;
-    setSearchTriggered(true); // כאן נציין שהחיפוש התחיל
+    setSearchTriggered(true);
 
     const lower = search.toLowerCase();
     const matchedSkills = skills.filter(
@@ -43,89 +43,106 @@ const Home: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.content}>
-        <h1 style={styles.title}>SkillXchange</h1>
+      <div style={styles.heroSection}>
+        <img src={logoNoBg} alt="SkillXchange Logo" style={styles.heroLogo} />
+        <h1 style={styles.title}>
+          <span style={styles.gradientText}>SkillXchange</span>
+        </h1>
+        <p style={styles.heroSubtitle}>
+          Swap skills. Grow together. Find your next passion!
+        </p>
+      </div>
 
-        <div style={styles.filters}>
-          {/* Search Bar + Button */}
-          <div style={{ position: 'relative', width: '100%', maxWidth: '600px', display: 'flex', gap: '0.5rem' }}>
-            <input
-              type="text"
-              placeholder="Search skills or categories..."
-              value={search}
-              onChange={e => {
-                setSearch(e.target.value);
+      <div style={styles.filters}>
+        <div style={styles.searchWrapper}>
+          <FaSearch style={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search skills or categories..."
+            value={search}
+            onChange={e => {
+              setSearch(e.target.value);
+              setSearchTriggered(false);
+            }}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            style={{
+              ...styles.input,
+              ...(isFocused ? styles.inputFocus : {})
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleSearchClick();
+            }}
+          />
+          {search && (
+            <FaTimesCircle
+              onClick={() => {
+                setSearch('');
+                setSearchResults({ skills: [], categories: [] });
                 setSearchTriggered(false);
               }}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              style={{
-                ...styles.input,
-                ...(isFocused ? styles.inputFocus : {})
+              style={styles.clearButton}
+              title="Clear"
+            />
+          )}
+          <button onClick={handleSearchClick} style={styles.searchButton}>Search</button>
+          <button onClick={() => setShowPopup(true)} style={styles.categoryButton}>
+            <FaThList /> Categories
+          </button>
+          {showPopup && (
+            <CategoryPopup
+              onClose={() => setShowPopup(false)}
+              onCategorySelect={(categoryId) => {
+                setSelectedCategoryId(categoryId);
+                setSearch('');
+                setSearchResults({ skills: [], categories: [] });
+                setShowPopup(false);
               }}
             />
-            {search && (
-              <button
-                onClick={() => {
-                  setSearch('');
-                  setSearchResults({ skills: [], categories: [] });
-                  setSearchTriggered(false);
-                }}
-                style={styles.clearButton}
-              >
-                ×
-              </button>
-            )}
-            <button onClick={handleSearchClick} style={styles.searchButton}>Search</button>
-            <button onClick={() => setShowPopup(true)} style={styles.searchButton}>
-              Categories
-            </button>
-            {showPopup && (
-              <CategoryPopup
-                onClose={() => setShowPopup(false)}
-                onCategorySelect={(category) => {
-                  setSelectedCategoryId(category);
-                  setSearch(''); // אפס חיפוש
-                  setSearchResults({ skills: [], categories: [] }); // אפס תוצאות חיפוש
-                }}
-              />
-            )}
-          </div>
-
+          )}
         </div>
-            {selectedCategoryId && (
-  <>
-    <h2 style={styles.sectionTitle}>Skills in Selected Category</h2>
-    <div style={styles.skillsGrid}>
-      {skills
-        .filter(skill => String(skill.category) === selectedCategoryId)
-        .map(skill => (
-          <div
-            key={skill.id}
-            style={{ ...styles.card, cursor: 'pointer' }}
-            onClick={() => navigate(`/skill/${skill.id}`)}
-          >
-            <img
-              src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
-              alt={skill.skillName}
-              style={styles.skillImage}
-            />
-            <h3 style={styles.skillName}>{skill.skillName}</h3>
-            <p style={styles.description}>{skill.description}</p>
-            <div style={styles.userInfo}>
-              <div>
-                <div style={styles.userName}>{skill.contactName}</div>
-                <div style={styles.userEmail}>{skill.contactEmail}</div>
-              </div>
+      </div>
+
+      <div style={styles.content}>
+        {/* Category filter view */}
+        {selectedCategoryId && (
+          <>
+            <h2 style={styles.sectionTitle}>Skills in Selected Category</h2>
+            <div style={styles.skillsGrid}>
+              {skills
+                .filter(skill => String(skill.category) === selectedCategoryId)
+                .map(skill => (
+                  <div
+                    key={skill.id}
+                    style={
+                      hoveredSkillId === String(skill.id)
+                        ? { ...styles.card, ...styles.cardHover }
+                        : styles.card
+                    }
+                    onMouseEnter={() => setHoveredSkillId(String(skill.id))}
+                    onMouseLeave={() => setHoveredSkillId(null)}
+                    onClick={() => navigate(`/skill/${skill.id}`)}
+                  >
+                    <img
+                      src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+                      alt={skill.skillName}
+                      style={styles.skillImage}
+                    />
+                    <h3 style={styles.skillName}>{skill.skillName}</h3>
+                    <p style={styles.description}>{skill.description}</p>
+                    <div style={styles.userInfo}>
+                      <div>
+                        <div style={styles.userName}>{skill.contactName}</div>
+                        <div style={styles.userEmail}>{skill.contactEmail}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
-          </div>
-        ))}
-    </div>
-  </>
-)}
+          </>
+        )}
 
-
-        {/* Show Categories from Search Results */}
+        {/* Categories from search */}
         {searchResults.categories.length > 0 && (
           <>
             <h2 style={styles.sectionTitle}>Matching Categories</h2>
@@ -133,13 +150,7 @@ const Home: React.FC = () => {
               {searchResults.categories.map(category => (
                 <div
                   key={category.id}
-                  style={
-                    hoveredCategoryId === String(category.id)
-                      ? { ...styles.skillCard, ...styles.skillCardHover }
-                      : styles.skillCard
-                  }
-                  onMouseEnter={() => setHoveredCategoryId(String(category.id))}
-                  onMouseLeave={() => setHoveredCategoryId(null)}
+                  style={styles.skillCard}
                   onClick={() => navigate(`/category/${category.name}`)}
                 >
                   <span style={styles.skillName}>{category.name}</span>
@@ -149,7 +160,7 @@ const Home: React.FC = () => {
           </>
         )}
 
-        {/* Show Skills from Search Results */}
+        {/* Skills from search */}
         {searchResults.skills.length > 0 && (
           <>
             <h2 style={styles.sectionTitle}>Matching Skills</h2>
@@ -157,21 +168,22 @@ const Home: React.FC = () => {
               {searchResults.skills.map(skill => (
                 <div
                   key={skill.id}
-                  style={{ ...styles.card, cursor: 'pointer' }}
+                  style={
+                    hoveredSkillId === String(skill.id)
+                      ? { ...styles.card, ...styles.cardHover }
+                      : styles.card
+                  }
+                  onMouseEnter={() => setHoveredSkillId(String(skill.id))}
+                  onMouseLeave={() => setHoveredSkillId(null)}
                   onClick={() => navigate(`/skill/${skill.id}`)}
                 >
-                  {/* Skill image */}
                   <img
                     src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
                     alt={skill.skillName}
                     style={styles.skillImage}
                   />
-
-                  {/* Skill title and description */}
                   <h3 style={styles.skillName}>{skill.skillName}</h3>
                   <p style={styles.description}>{skill.description}</p>
-
-                  {/* Contact info */}
                   <div style={styles.userInfo}>
                     <div>
                       <div style={styles.userName}>{skill.contactName}</div>
@@ -199,145 +211,237 @@ const Home: React.FC = () => {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
+    minHeight: '100vh',
+    width: '100%',
+    background: 'linear-gradient(120deg, #e0e7ff 0%, #f9fafb 60%)',
     display: 'flex',
-    justifyContent: 'center',
-    backgroundColor: '#f9fafb',
-    padding: '3rem 1rem',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '2.5rem 0',
+    position: 'relative'
+  },
+  heroSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: '2.5rem',
+  },
+  heroLogo: {
+    width: 150,
+    height: 150,
+    borderRadius: '28%',
+    objectFit: 'contain',
+  },
+  gradientText: {
+    background: 'linear-gradient(90deg, #818cf8, #3b82f6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    fontWeight: 900,
+  },
+  title: {
+    fontSize: '2.7rem',
+    fontWeight: 900,
+    letterSpacing: '-1px',
+    marginBottom: '0.3rem',
+    textShadow: '0 2px 12px #dbeafe'
+  },
+  heroSubtitle: {
+    fontSize: '1.13rem',
+    color: '#475569',
+    marginBottom: '0.8rem',
+    fontWeight: 500,
+    textAlign: 'center',
+  },
+  filters: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: '2.3rem',
+  },
+  searchWrapper: {
+    width: '100%',
+    maxWidth: '580px',
+    background: 'white',
+    borderRadius: '2rem',
+    boxShadow: '0 2px 16px 0 rgba(59,130,246,0.10)',
+    display: 'flex',
+    alignItems: 'center',
+    position: 'relative',
+    padding: '0.3rem 1.2rem',
+    gap: '0.7rem',
+    margin: 'auto',
+  },
+  searchIcon: {
+    color: '#818cf8',
+    fontSize: '1.25rem',
+    marginRight: '0.5rem',
+  },
+  input: {
+    flex: 1,
+    padding: '0.6rem 1rem',
+    fontSize: '1.11rem',
+    border: 'none',
+    background: 'transparent',
+    outline: 'none',
+    color: '#334155',
+    fontWeight: 500,
+    borderRadius: '1.5rem',
+    transition: 'box-shadow 0.23s',
+    minWidth: 0,
+  },
+  inputFocus: {
+    boxShadow: '0 0 0 2px #818cf8',
+    background: '#f1f5fd',
   },
   clearButton: {
-    position: 'absolute',
-    right: '15rem', // מיקום בהתחשב בכפתור ה-Search
-    top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'none',
-    border: 'none',
-    fontSize: '1.8rem',
-    color: '#6b7280',
+    color: '#a5b4fc',
+    fontSize: '1.6rem',
     cursor: 'pointer',
-    padding: 0,
+    marginLeft: '-0.6rem',
+    marginRight: '0.3rem',
+    transition: 'color 0.18s',
+  },
+  searchButton: {
+    padding: '0.65rem 1.3rem',
+    background: 'linear-gradient(90deg, #3b82f6 60%, #818cf8 100%)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '1.5rem',
+    fontWeight: 700,
+    fontSize: '1.07rem',
+    cursor: 'pointer',
+    marginLeft: '0.5rem',
+    boxShadow: '0 2px 8px #dbeafe',
+    transition: 'background 0.18s',
+  },
+  categoryButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.45rem',
+    padding: '0.65rem 1.1rem',
+    background: '#e0e7ff',
+    color: '#4338ca',
+    border: 'none',
+    borderRadius: '1.5rem',
+    fontWeight: 700,
+    fontSize: '1.04rem',
+    cursor: 'pointer',
+    marginLeft: '0.45rem',
+    boxShadow: '0 1px 4px #dbeafe',
+    transition: 'background 0.15s',
   },
   content: {
     width: '100%',
-    maxWidth: '1100px',
+    maxWidth: '1200px',
+    margin: '0 auto',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
-  title: {
-    fontSize: '2.5rem',
+  sectionTitle: {
     fontWeight: 700,
-    color: '#1f2937',
-    marginBottom: '2rem',
-  },
-  filters: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '1rem',
+    fontSize: '1.28rem',
+    color: '#6366f1',
+    letterSpacing: '0.01em',
+    marginBottom: '0.5rem',
+    marginTop: '2.2rem',
+    textAlign: 'left',
     width: '100%',
-    marginBottom: '2rem',
-  },
-  input: {
-    width: '100%',
-    maxWidth: '600px',
-    padding: '0.75rem 1rem',
-    fontSize: '1rem',
-    borderRadius: '0.5rem',
-    border: '1px solid #d1d5db',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-    transition: 'all 0.2s ease-in-out',
-  },
-  inputFocus: {
-    borderColor: '#3b82f6',
-    boxShadow: '0 0 6px rgba(59, 130, 246, 0.4)',
-    outline: 'none',
-  },
-  searchButton: {
-    padding: '0.75rem 1.2rem',
-    fontSize: '1rem',
-    backgroundColor: '#3b82f6',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '0.5rem',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s ease-in-out',
+    maxWidth: '1200px',
   },
   skillsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
+    gap: '2.2rem',
     width: '100%',
+    marginTop: '1.1rem',
+    marginBottom: '1.6rem',
+    justifyItems: 'center',
   },
   skillCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: '1rem',
+    background: 'white',
+    borderRadius: '1.2rem',
     padding: '1.25rem',
     textAlign: 'center',
     border: '1px solid #e5e7eb',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)',
-    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s',
+    boxShadow: '0 2px 8px rgba(59,130,246,0.03)',
+    transition: 'transform 0.21s, box-shadow 0.21s',
     cursor: 'pointer',
+    fontWeight: 600,
+    fontSize: '1.13rem',
+    minWidth: 220,
+    maxWidth: 320,
+    width: '100%',
   },
-  skillCardHover: {
-    transform: 'scale(1.03)',
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-  },
-
   card: {
-    backgroundColor: '#ffffff',
-    borderRadius: '1rem',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-    padding: '1.5rem',
-    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-    cursor: 'default',
+    backgroundColor: '#fff',
+    borderRadius: '1.15rem',
+    boxShadow: '0 4px 14px rgba(49, 130, 206, 0.11)',
+    padding: '1.3rem 1.1rem 1.7rem 1.1rem',
+    transition: 'transform 0.19s, box-shadow 0.19s',
+    cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    gap: '1rem',
+    gap: '0.85rem',
+    minHeight: '320px',
+    maxWidth: '340px',
+    width: '100%',
+  },
+  cardHover: {
+    transform: 'scale(1.045)',
+    boxShadow: '0 10px 40px 0 rgba(59,130,246,0.14)'
+  },
+  skillImage: {
+    width: '100%',
+    height: '140px',
+    objectFit: 'cover',
+    borderRadius: '0.8rem',
+    boxShadow: '0 2px 8px #f1f5f9',
+    marginBottom: '0.7rem',
+    background: '#f3f4f6',
   },
   skillName: {
     margin: 0,
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    color: '#1f2937',
+    fontSize: '1.21rem',
+    fontWeight: 700,
+    color: '#3730a3',
+    letterSpacing: '0.01em',
+    marginTop: '0.1rem',
+    marginBottom: '0.23rem'
   },
   description: {
-    marginTop: '0.5rem',
+    marginTop: '0.1rem',
     fontSize: '1rem',
     color: '#4b5563',
+    minHeight: '44px',
   },
   userInfo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
+    gap: '0.7rem',
     borderTop: '1px solid #e5e7eb',
-    paddingTop: '1rem',
-    marginTop: '1rem',
-  },
-  avatar: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    objectFit: 'cover',
+    paddingTop: '0.75rem',
+    marginTop: '0.65rem',
   },
   userName: {
-    fontWeight: 500,
-    fontSize: '0.95rem',
+    fontWeight: 600,
+    fontSize: '1.01rem',
     color: '#1e3a8a',
   },
   userEmail: {
-    fontSize: '0.85rem',
-    color: '#6b7280',
-  },
-  skillImage: {
-    height: '190px',
-    objectFit: 'cover',
+    fontSize: '0.91rem',
+    color: '#64748b',
+    letterSpacing: '.01em'
   },
   noSkillsMessage: {
     textAlign: 'center',
     color: '#6b7280',
-    fontSize: '1.125rem',
-    padding: '2rem',
+    fontSize: '1.18rem',
+    fontWeight: 500,
+    padding: '2.2rem',
+    marginTop: '2.5rem',
   },
 };
 
