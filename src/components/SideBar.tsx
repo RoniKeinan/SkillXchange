@@ -170,23 +170,23 @@ const SideBar: React.FC = () => {
               </li>
             )}
             
-            <li>
-              <a
-                onClick={(e) => {
-                  e.preventDefault();
-                  requireAuth(() => {
+            {user && (
+              <li>
+                <a
+                  onClick={(e) => {
+                    e.preventDefault();
                     setIsOpen(false);
                     navigate('/AddSkill');
-                  });
-                }}
-                href="#"
-                style={linkStyle}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                Add Skill
-              </a>
-            </li>
+                  }}
+                  href="#"
+                  style={linkStyle}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Add Skill
+                </a>
+              </li>
+            )}
           </ul>
         </nav>
       </aside>
