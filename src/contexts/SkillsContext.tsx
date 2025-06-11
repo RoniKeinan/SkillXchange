@@ -3,19 +3,18 @@ import { useCategoryContext } from './CategoryContext';
 import { useUserContext } from './UserContext';
 
 export interface Skill {
-  id: string; // previously number, now string as per your JSON
+  id: string;
   skillName: string;
   category: string;
   description: string;
   contactName: string;
   contactEmail: string;
-  images?: string[]; 
- 
+  images?: string[];
 }
 
 interface SkillContextType {
   skills: Skill[];
- 
+  getAllSkills: () => Promise<void>; // 🟢 הוספת הפונקציה ל-interface
 }
 
 const SkillContext = createContext<SkillContextType | undefined>(undefined);
@@ -32,14 +31,13 @@ interface SkillProviderProps {
 
 export const SkillProvider: React.FC<SkillProviderProps> = ({ children }) => {
   const { user } = useUserContext();
-  const { addSkillToCategory, addCategory, categories } = useCategoryContext();
+  const {  addCategory, categories } = useCategoryContext();
 
   const [skills, setSkills] = useState<Skill[]>([]);
 
-  // Fetch skills from the API
   const getAllSkills = async () => {
     try {
-      const response = await fetch('https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/Skill', {
+      const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Skills', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -53,17 +51,15 @@ export const SkillProvider: React.FC<SkillProviderProps> = ({ children }) => {
       const data = await response.json();
       console.log("Skills from API:", data);
 
-      // Make sure data is in correct format
       if (Array.isArray(data.skills)) {
         setSkills(data.skills);
 
-        // Optional: also populate categories if you want
         data.skills.forEach((skill: Skill) => {
           const exists = categories.some(c => c.name.toLowerCase() === skill.category.toLowerCase());
           if (!exists) {
             addCategory(skill.category);
           }
-          addSkillToCategory(skill.category, skill);
+          
         });
       }
     } catch (error) {
@@ -71,15 +67,12 @@ export const SkillProvider: React.FC<SkillProviderProps> = ({ children }) => {
     }
   };
 
-  // Load skills once on mount
   useEffect(() => {
     getAllSkills();
   }, []);
 
- 
-
   return (
-    <SkillContext.Provider value={{ skills}}>
+    <SkillContext.Provider value={{ skills, getAllSkills }}>
       {children}
     </SkillContext.Provider>
   );

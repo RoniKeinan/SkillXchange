@@ -153,7 +153,7 @@ const SideBar: React.FC = () => {
                 </>
               ) : (
                 <a
-                  href="https://us-east-1qm0ueiz0l.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=1h0smv7g3m91qshr4epscp3ual&response_type=token&scope=openid+email+profile&redirect_uri=http://localhost:5173/"
+                  href="https://us-east-1dwfznry1h.auth.us-east-1.amazoncognito.com/oauth2/authorize?client_id=5qvgf43gd6c32ve6o5drt5c92d&response_type=token&scope=openid+email+profile&redirect_uri=http://localhost:5173/"
                   style={{ ...linkStyle, color: 'inherit', textDecoration: 'none' }}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}

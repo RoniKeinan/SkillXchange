@@ -65,20 +65,20 @@ const EditProfile: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // ננקה את המשתמש לשליחה לשרת
+       
         const cleanedUser: Partial<User> = { ...updateduser };
 
         if (!cleanedUser.image || cleanedUser.image.trim() === "") {
-            delete cleanedUser.image; // אם התמונה ריקה, אל תשלח אותה
+            delete cleanedUser.image; 
         }
         console.log("Sending user:", cleanedUser);
         try {
-            const response = await fetch('https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/User', {
+            const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/User', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(cleanedUser), // נשלח את cleanedUser, לא updateduser
+                body: JSON.stringify(cleanedUser), 
             });
 
             if (!response.ok) {

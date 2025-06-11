@@ -83,7 +83,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Step 4: Tokens are valid — fetch user from backend
     const [userId, email] = DecodeIDToken(idToken);
 
-    fetch("https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/User", {
+    fetch("https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/User", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 const removeUser = () => {
   localStorage.removeItem("idToken");
   localStorage.removeItem("accessToken"); 
-  window.location.href = "https://us-east-1qm0ueiz0l.auth.us-east-1.amazoncognito.com/logout?client_id=1h0smv7g3m91qshr4epscp3ual&logout_uri=http://localhost:5173/";
+  window.location.href = "https://us-east-1dwfznry1h.auth.us-east-1.amazoncognito.com/logout?client_id=5qvgf43gd6c32ve6o5drt5c92d&logout_uri=http://localhost:5173/";
  
 };
 

@@ -1,6 +1,8 @@
 import React, { useState, CSSProperties, useRef } from 'react';
 import { useCategoryContext } from '../contexts/CategoryContext';
 import { useUserContext } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
+import { useSkillContext } from '../contexts/SkillsContext';
 
 const containerStyle: CSSProperties = {
   maxWidth: '500px',
@@ -55,7 +57,9 @@ const buttonStyle: CSSProperties = {
 };
 
 const AddSkillPage: React.FC = () => {
- 
+
+  const navigate = useNavigate()
+ const { getAllSkills } = useSkillContext();
   const { categories, addCategory } = useCategoryContext();
   const { user } = useUserContext();
   const [images, setImages] = useState<string[]>([]);
@@ -100,7 +104,7 @@ const AddSkillPage: React.FC = () => {
     };
 
     try {
-      const response = await fetch('https://rrhrxoqc2j.execute-api.us-east-1.amazonaws.com/dev/Skill', {
+      const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Skills', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -122,6 +126,8 @@ const AddSkillPage: React.FC = () => {
         if (fileInputRef.current) {
           fileInputRef.current.value = '';  // איפוס שדה הקבצים
         }
+        await getAllSkills(); 
+        navigate('/')
       } else {
         const errorData = await response.json();
         console.error('Error:', errorData);
