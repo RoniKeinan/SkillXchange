@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 
 // Define the Category interface
@@ -38,21 +39,28 @@ export const CategoryProvider: React.FC<CategoryProviderProps> = ({ children }) 
 
 const addCategory = (categoryName: string) => {
   const capitalizedName = categoryName
-    .split(' ')
-    .map(word =>
-      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    )
+    .trim()
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 
-  const newCategory: Category = {
-    id: categories.length + 1,
-    name: capitalizedName,
-    
-  };
+  setCategories(prevCategories => {
+    const exists = prevCategories.some(c => c.name === capitalizedName);
+    if (exists) {
+      console.log(`Category "${capitalizedName}" already exists.`);
+      return prevCategories;
+    }
 
-  setCategories([...categories, newCategory]);
+    const maxId = Math.max(0, ...prevCategories.map(c => c.id));
+    const newCategory: Category = {
+      id: maxId + 1,
+      name: capitalizedName,
+    };
+
+    console.log("Adding new category:", newCategory);
+    return [...prevCategories, newCategory];
+  });
 };
-
 
 
   return (
