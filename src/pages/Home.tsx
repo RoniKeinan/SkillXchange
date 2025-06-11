@@ -124,7 +124,7 @@ const Home: React.FC = () => {
                     onClick={() => navigate(`/skill/${skill.id}`)}
                   >
                     <img
-                      src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+                      src={skill.images && skill.images.length > 0 ? skill.images[0] : logoNoBg}
                       alt={skill.skillName}
                       style={styles.skillImage}
                     />
@@ -178,7 +178,7 @@ const Home: React.FC = () => {
                   onClick={() => navigate(`/skill/${skill.id}`)}
                 >
                   <img
-                    src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+                    src={skill.images && skill.images.length > 0 ? skill.images[0] : logoNoBg}
                     alt={skill.skillName}
                     style={styles.skillImage}
                   />
