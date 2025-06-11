@@ -11,6 +11,7 @@ import MySkillDetails from './pages/MySkillDetails';
 import EditSkillPage from './pages/EditSkillPage';
 import EditProflie from './pages/EditProfile';
 
+
 const App: React.FC = () => {
   return (
 
