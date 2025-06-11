@@ -12,6 +12,7 @@ import EditSkillPage from './pages/EditSkillPage';
 import EditProflie from './pages/EditProfile';
 import UserProfileScreen from './pages/UserProfileScreen';
 
+
 const App: React.FC = () => {
   return (
 

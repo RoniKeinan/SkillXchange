@@ -3,7 +3,7 @@ import { useSkillContext } from '../contexts/SkillsContext';
 import { useCategoryContext } from '../contexts/CategoryContext';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/images/logo.png';
-import  CategoryPopup  from '../components/CategoryPopup';
+import CategoryPopup from '../components/CategoryPopup';
 
 const Home: React.FC = () => {
   const { skills } = useSkillContext();
@@ -13,6 +13,7 @@ const Home: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchTriggered, setSearchTriggered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
 
   const [searchResults, setSearchResults] = useState<{
@@ -21,9 +22,9 @@ const Home: React.FC = () => {
   }>({ skills: [], categories: [] });
 
   const navigate = useNavigate();
-  
+
   const handleSearchClick = () => {
-    if(search==='')return;
+    if (search === '') return;
     setSearchTriggered(true); // כאן נציין שהחיפוש התחיל
 
     const lower = search.toLowerCase();
@@ -48,41 +49,81 @@ const Home: React.FC = () => {
         <div style={styles.filters}>
           {/* Search Bar + Button */}
           <div style={{ position: 'relative', width: '100%', maxWidth: '600px', display: 'flex', gap: '0.5rem' }}>
-  <input
-    type="text"
-    placeholder="Search skills or categories..."
-    value={search}
-    onChange={e => {
-      setSearch(e.target.value);
-      setSearchTriggered(false);
-    }}
-    onFocus={() => setIsFocused(true)}
-    onBlur={() => setIsFocused(false)}
-    style={{
-      ...styles.input,
-      ...(isFocused ? styles.inputFocus : {})
-    }}
-  />
-  {search && (
-    <button
-      onClick={() => {
-        setSearch('');
-        setSearchResults({ skills: [], categories: [] });
-        setSearchTriggered(false);
-      }}
-      style={styles.clearButton}
-    >
-      ×
-    </button>
-  )}
-  <button onClick={handleSearchClick} style={styles.searchButton}>Search</button>
-    <button onClick={() => setShowPopup(true)} style={styles.searchButton}>
-         Categories
-      </button>
-      {showPopup && <CategoryPopup onClose={() => setShowPopup(false)} />}
-</div>
+            <input
+              type="text"
+              placeholder="Search skills or categories..."
+              value={search}
+              onChange={e => {
+                setSearch(e.target.value);
+                setSearchTriggered(false);
+              }}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              style={{
+                ...styles.input,
+                ...(isFocused ? styles.inputFocus : {})
+              }}
+            />
+            {search && (
+              <button
+                onClick={() => {
+                  setSearch('');
+                  setSearchResults({ skills: [], categories: [] });
+                  setSearchTriggered(false);
+                }}
+                style={styles.clearButton}
+              >
+                ×
+              </button>
+            )}
+            <button onClick={handleSearchClick} style={styles.searchButton}>Search</button>
+            <button onClick={() => setShowPopup(true)} style={styles.searchButton}>
+              Categories
+            </button>
+            {showPopup && (
+              <CategoryPopup
+                onClose={() => setShowPopup(false)}
+                onCategorySelect={(category) => {
+                  setSelectedCategoryId(category);
+                  setSearch(''); // אפס חיפוש
+                  setSearchResults({ skills: [], categories: [] }); // אפס תוצאות חיפוש
+                }}
+              />
+            )}
+          </div>
 
         </div>
+            {selectedCategoryId && (
+  <>
+    <h2 style={styles.sectionTitle}>Skills in Selected Category</h2>
+    <div style={styles.skillsGrid}>
+      {skills
+        .filter(skill => String(skill.category) === selectedCategoryId)
+        .map(skill => (
+          <div
+            key={skill.id}
+            style={{ ...styles.card, cursor: 'pointer' }}
+            onClick={() => navigate(`/skill/${skill.id}`)}
+          >
+            <img
+              src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+              alt={skill.skillName}
+              style={styles.skillImage}
+            />
+            <h3 style={styles.skillName}>{skill.skillName}</h3>
+            <p style={styles.description}>{skill.description}</p>
+            <div style={styles.userInfo}>
+              <div>
+                <div style={styles.userName}>{skill.contactName}</div>
+                <div style={styles.userEmail}>{skill.contactEmail}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+    </div>
+  </>
+)}
+
 
         {/* Show Categories from Search Results */}
         {searchResults.categories.length > 0 && (
@@ -114,30 +155,30 @@ const Home: React.FC = () => {
             <h2 style={styles.sectionTitle}>Matching Skills</h2>
             <div style={styles.skillsGrid}>
               {searchResults.skills.map(skill => (
-                 <div
-              key={skill.id}
-              style={{ ...styles.card, cursor: 'pointer' }}
-              onClick={() => navigate(`/skill/${skill.id}`)}
-            >
-              {/* Skill image */}
-              <img
-                src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
-                alt={skill.skillName}
-                style={styles.skillImage}
-              />
+                <div
+                  key={skill.id}
+                  style={{ ...styles.card, cursor: 'pointer' }}
+                  onClick={() => navigate(`/skill/${skill.id}`)}
+                >
+                  {/* Skill image */}
+                  <img
+                    src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+                    alt={skill.skillName}
+                    style={styles.skillImage}
+                  />
 
-              {/* Skill title and description */}
-              <h3 style={styles.skillName}>{skill.skillName}</h3>
-              <p style={styles.description}>{skill.description}</p>
+                  {/* Skill title and description */}
+                  <h3 style={styles.skillName}>{skill.skillName}</h3>
+                  <p style={styles.description}>{skill.description}</p>
 
-              {/* Contact info */}
-              <div style={styles.userInfo}>
-                <div>
-                  <div style={styles.userName}>{skill.contactName}</div>
-                  <div style={styles.userEmail}>{skill.contactEmail}</div>
+                  {/* Contact info */}
+                  <div style={styles.userInfo}>
+                    <div>
+                      <div style={styles.userName}>{skill.contactName}</div>
+                      <div style={styles.userEmail}>{skill.contactEmail}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
               ))}
             </div>
           </>
@@ -145,16 +186,16 @@ const Home: React.FC = () => {
 
         {/* No results message */}
         {searchTriggered &&
-  searchResults.skills.length === 0 &&
-  searchResults.categories.length === 0 && (
-    <div style={styles.noSkillsMessage}>
-      No matching skills or categories found 😕
-    </div>
-)}
+          searchResults.skills.length === 0 &&
+          searchResults.categories.length === 0 && (
+            <div style={styles.noSkillsMessage}>
+              No matching skills or categories found 😕
+            </div>
+          )}
       </div>
     </div>
   );
-  };
+};
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
@@ -164,17 +205,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '3rem 1rem',
   },
   clearButton: {
-  position: 'absolute',
-  right: '15rem', // מיקום בהתחשב בכפתור ה-Search
-  top: '50%',
-  transform: 'translateY(-50%)',
-  background: 'none',
-  border: 'none',
-  fontSize: '1.8rem',
-  color: '#6b7280',
-  cursor: 'pointer',
-  padding: 0,
-},
+    position: 'absolute',
+    right: '15rem', // מיקום בהתחשב בכפתור ה-Search
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'none',
+    border: 'none',
+    fontSize: '1.8rem',
+    color: '#6b7280',
+    cursor: 'pointer',
+    padding: 0,
+  },
   content: {
     width: '100%',
     maxWidth: '1100px',
@@ -241,7 +282,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     transform: 'scale(1.03)',
     boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
   },
- 
+
   card: {
     backgroundColor: '#ffffff',
     borderRadius: '1rem',
@@ -288,7 +329,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '0.85rem',
     color: '#6b7280',
   },
-  skillImage:{
+  skillImage: {
     height: '190px',
     objectFit: 'cover',
   },

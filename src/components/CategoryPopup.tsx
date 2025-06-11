@@ -1,31 +1,35 @@
 import React, { useState } from 'react';
 import { useCategoryContext } from '../contexts/CategoryContext';
-import { useNavigate } from 'react-router-dom';
 
-const CategoryPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+
+const CategoryPopup: React.FC<{ onClose: () => void; onCategorySelect: (categoryId: string) => void }> = ({ onClose, onCategorySelect }) => {
   const { categories } = useCategoryContext();
-  const navigate = useNavigate();
+
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
+ 
 
   return (
     <div style={styles.popupOverlay} onClick={onClose}>
       <div style={styles.popup} onClick={(e) => e.stopPropagation()}>
         <h2>Categories</h2>
-         <div style={styles.skillsGrid}>
+        <div style={styles.skillsGrid}>
           {categories.map(category => (
             <div
-                  key={category.id}
-                  style={
-                    hoveredCategoryId === String(category.id)
-                      ? { ...styles.skillCard, ...styles.skillCardHover }
-                      : styles.skillCard
-                  }
-                  onMouseEnter={() => setHoveredCategoryId(String(category.id))}
-                  onMouseLeave={() => setHoveredCategoryId(null)}
-                  onClick={() => navigate(`/category/${category.name}`)}
-                >
-                  <span style={styles.skillName}>{category.name}</span>
-                </div>
+              key={category.id}
+              style={
+                hoveredCategoryId === String(category.id)
+                  ? { ...styles.skillCard, ...styles.skillCardHover }
+                  : styles.skillCard
+              }
+              onMouseEnter={() => setHoveredCategoryId(String(category.name))}
+              onMouseLeave={() => setHoveredCategoryId(null)}
+              onClick={() => {
+                onCategorySelect(String(category.name)); // שלח את הקטגוריה להורה
+                onClose(); // סגור את הפופאפ
+              }}
+            >
+              <span style={styles.skillName}>{category.name}</span>
+            </div>
           ))}
         </div>
         <button onClick={onClose} style={styles.closeButton}>Close</button>
