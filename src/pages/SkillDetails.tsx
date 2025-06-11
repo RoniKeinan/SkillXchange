@@ -1,5 +1,5 @@
-import React, { useState } from 'react'; 
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useUserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.png';
@@ -33,25 +33,27 @@ const SkillDetails: React.FC = () => {
   return (
     <div style={styles.container}>
       {/* Use skillName instead of name */}
-       <img 
-          src={skill.images && skill.images.length > 0 ? skill.images[0] : logo} 
-          alt={skill.contactName} 
-          style={styles.skillImage} 
-        />
+      <img
+        src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+        alt={skill.contactName}
+        style={styles.skillImage}
+      />
       <h2 style={styles.title}>{skill.skillName}</h2>
       <p style={styles.description}>{skill.description}</p>
 
       <div style={styles.userInfo}>
-        {/* There is no user object, use contactName and contactEmail */}
-        <img 
-           src={skill.images && skill.images.length > 0 ? skill.images[0] : logo} 
-          alt={skill.contactName} 
-          style={styles.avatar} 
-        />
-        <div>
-          <div style={styles.userName}>{skill.contactName}</div>
-          <div style={styles.userEmail}>{skill.contactEmail}</div>
-        </div>
+        <Link to={`/user/${encodeURIComponent(skill.contactEmail)}`} style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none' }}>        {/* There is no user object, use contactName and contactEmail */}
+          <img
+            src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+            alt={skill.contactName}
+            style={styles.avatar}
+          />
+          <div>
+            <div style={styles.userName}>{skill.contactName}</div>
+            <div style={styles.userEmail}>{skill.contactEmail}</div>
+          </div>
+        </Link>
+
       </div>
 
       {/* Compare user email to contactEmail */}
@@ -112,7 +114,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '0.9rem',
     color: '#6b7280',
   },
-  skillImage:{
+  skillImage: {
     height: '190px',
     objectFit: 'cover',
   },
