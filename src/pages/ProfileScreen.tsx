@@ -8,10 +8,9 @@ const ProfileScreen: React.FC = () => {
   const { user, skills } = useUserContext();
   const navigate = useNavigate();
 
-  console.log(user)
-
   const unreadMessages = 3;
   const unreadChats = 1;
+
   if (!user) {
     return (
       <div style={styles.container}>
@@ -23,55 +22,58 @@ const ProfileScreen: React.FC = () => {
     );
   }
 
-return (
+  return (
     <div style={styles.container}>
       <div style={styles.card}>
+        {/* Top Right Bar */}
         <div style={styles.topBar}>
           <div style={styles.buttonGroup}>
             <div style={styles.iconWrapper}>
               <button onClick={() => navigate('/PendingMessages')} style={styles.iconButton}>
-                <FiMail size={20} />
+                <FiMail size={22} />
               </button>
               {unreadMessages > 0 && <div style={styles.badge}>{unreadMessages}</div>}
             </div>
-
             <div style={styles.iconWrapper}>
               <button onClick={() => navigate('/ChatList')} style={styles.iconButton}>
-                <FiMessageCircle size={20} />
+                <FiMessageCircle size={22} />
               </button>
               {unreadChats > 0 && <div style={styles.badge}>{unreadChats}</div>}
             </div>
           </div>
         </div>
 
+        {/* Main User Info */}
         <div style={styles.topSection}>
-  <img
-    style={styles.image}
-    src={user.image || 'https://via.placeholder.com/120'}
-  />
-  <div style={styles.nameBlock}>
-    <div style={styles.name}>
-      {user.firstName || 'First name not provided'} {user.lastName || ''}
-    </div>
-    <div style={styles.value}>{user.email || 'Email not provided'}</div>
-    <div style={styles.value}>Phone: {user.phone || 'Not provided'}</div>
-  </div>
-</div>
+          <img
+            style={styles.image}
+            src={user.image || 'https://via.placeholder.com/120'}
+            alt="User profile"
+          />
+          <div style={styles.nameBlock}>
+            <div style={styles.name}>
+              {user.firstName || 'First name not provided'} {user.lastName || ''}
+            </div>
+            <div style={styles.value}>{user.email || 'Email not provided'}</div>
+            <div style={styles.value}>Phone: {user.phone || 'Not provided'}</div>
+          </div>
+        </div>
 
-<div style={styles.section}>
-  <div style={styles.label}>Birth Date:</div>
-  <div style={styles.value}>{user.birthDate || 'Not provided'}</div>
-</div>
+        {/* Other Details */}
+        <div style={styles.section}>
+          <div style={styles.label}>Birth Date:</div>
+          <div style={styles.value}>{user.birthDate || 'Not provided'}</div>
+        </div>
+        <div style={styles.section}>
+          <div style={styles.label}>Address:</div>
+          <div style={styles.value}>
+            {(user.street && user.houseNumber && user.city)
+              ? `${user.street} ${user.houseNumber}, ${user.city}`
+              : 'Address not provided'}
+          </div>
+        </div>
 
-<div style={styles.section}>
-  <div style={styles.label}>Address:</div>
-  <div style={styles.value}>
-    {(user.street && user.houseNumber && user.city)
-      ? `${user.street} ${user.houseNumber}, ${user.city}`
-      : 'Address not provided'}
-  </div>
-</div>
-
+        {/* Skills */}
         <div style={styles.section}>
           <div style={styles.label}>Skills:</div>
           <div style={styles.skillsGrid}>
@@ -84,30 +86,30 @@ return (
                 />
               ))
             ) : (
-              <span>No skills listed.</span>
+              <span style={styles.emptyMessage}>No skills listed.</span>
             )}
           </div>
         </div>
 
-       <div style={styles.editButtonsContainer}>
-  <button
-    style={styles.editButton}
-    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
-    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
-    onClick={() => navigate('/AddSkill')}
-  >
-    Add Skill
-  </button>
-  <button
-    style={styles.editButton}
-    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
-    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
-    onClick={() => navigate('/EditProfile')}
-  >
-    Edit Profile
-  </button>
-</div>
-
+        {/* Action Buttons */}
+        <div style={styles.editButtonsContainer}>
+          <button
+            style={styles.editButton}
+            onClick={() => navigate('/AddSkill')}
+            onMouseOver={e => (e.currentTarget.style.background = '#6366f1')}
+            onMouseOut={e => (e.currentTarget.style.background = '#818cf8')}
+          >
+            Add Skill
+          </button>
+          <button
+            style={styles.editButton}
+            onClick={() => navigate('/EditProfile')}
+            onMouseOver={e => (e.currentTarget.style.background = '#6366f1')}
+            onMouseOut={e => (e.currentTarget.style.background = '#818cf8')}
+          >
+            Edit Profile
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -117,149 +119,138 @@ const styles = {
   container: {
     display: 'flex',
     justifyContent: 'center',
-    padding: '2rem',
-    backgroundColor: '#f4f4f4',
+    padding: '3rem 1rem',
+    background: 'linear-gradient(120deg, #e0e7ff 0%, #f9fafb 60%)',
     minHeight: '100vh',
   },
   card: {
     display: 'flex',
     flexDirection: 'column' as const,
     backgroundColor: '#fff',
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-    padding: '2rem',
-    maxWidth: '800px',
+    borderRadius: '1.5rem',
+    boxShadow: '0 8px 40px rgba(59,130,246,0.15)',
+    padding: '2.4rem 2.7rem',
+    maxWidth: '920px',
     width: '100%',
+    minHeight: 500,
+    margin: '2rem 0',
+    gap: '1.3rem',
+    position: 'relative' as const,
   },
   topBar: {
     display: 'flex',
     justifyContent: 'flex-end',
-    marginBottom: '1rem',
+    marginBottom: '1.3rem',
   },
   buttonGroup: {
     display: 'flex',
-    gap: '0.5rem',
+    gap: '0.7rem',
   },
   iconWrapper: {
     position: 'relative' as const,
   },
-
   badge: {
     position: 'absolute' as const,
-    top: '-6px',
-    right: '-6px',
+    top: '-8px',
+    right: '-8px',
     backgroundColor: '#ff4d4f',
     color: '#fff',
     borderRadius: '50%',
-    fontSize: '12px',
+    fontSize: '13px',
     fontWeight: 'bold' as const,
-    width: '20px',
-    height: '20px',
+    width: '21px',
+    height: '21px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0 0 0 2px white',
   },
   iconButton: {
-    backgroundColor: '#eee',
+    backgroundColor: '#e0e7ff',
     border: 'none',
-    padding: '0.5rem',
-    borderRadius: '8px',
+    padding: '0.55rem',
+    borderRadius: '0.7rem',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    transition: 'background 0.18s',
   },
   topSection: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '2rem',
+    marginBottom: '2.1rem',
   },
   image: {
     width: '120px',
     height: '120px',
     borderRadius: '50%',
     objectFit: 'cover' as const,
-    marginRight: '1.5rem',
-    border: '3px solid #ddd',
+    marginRight: '1.8rem',
+    border: '4px solid #c7d2fe',
+    boxShadow: '0 2px 12px #e0e7ff',
+    background: '#f3f4f6',
   },
   nameBlock: {
     display: 'flex',
     flexDirection: 'column' as const,
+    gap: '0.2rem',
   },
   name: {
-    fontSize: '24px',
-    fontWeight: 600,
-    color: '#333',
-    marginBottom: '0.5rem',
+    fontSize: '2.2rem',
+    fontWeight: 800,
+    color: '#3730a3',
+    marginBottom: '0.35rem',
+    letterSpacing: '-1px'
   },
   label: {
-    fontWeight: 500,
-    color: '#555',
-    marginBottom: '0.3rem',
+    fontWeight: 700,
+    color: '#6366f1',
+    marginBottom: '0.19rem',
+    fontSize: '1.07rem',
+    marginTop: '0.5rem',
   },
   value: {
-    color: '#333',
-    marginBottom: '0.5rem',
+    color: '#334155',
+    marginBottom: '0.42rem',
+    fontSize: '1.04rem',
+    fontWeight: 500,
   },
   section: {
-    marginBottom: '1.5rem',
+    marginBottom: '0.9rem',
   },
   skillsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-    gap: '2rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: '1.6rem',
+    marginTop: '1rem',
+    width: '100%',
   },
-  skillCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: '1rem',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-    padding: '1.5rem',
-    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-    cursor: 'default',
+  emptyMessage: {
+    color: '#6b7280',
+    fontWeight: 500,
+    fontSize: '1.09rem',
+    marginTop: '1.2rem'
+  },
+  editButtonsContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
     gap: '1rem',
-    flexDirection: 'column' as const,
+    marginTop: '2.1rem',
+    justifyContent: 'flex-start',
   },
-  skillName: {
-    margin: 0,
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    color: '#1f2937',
+  editButton: {
+    padding: '0.8rem 1.65rem',
+    fontSize: '1.07rem',
+    background: '#818cf8',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '0.7rem',
+    cursor: 'pointer',
+    boxShadow: '0 2px 8px #dbeafe',
+    fontWeight: 700,
+    transition: 'background 0.2s, transform 0.16s',
+    outline: 'none',
   },
-  skillCategory: {
-    fontSize: '14px',
-    color: '#555',
-    marginBottom: '0.3rem',
-  },
-  skillDescription: {
-    marginTop: '0.5rem',
-    fontSize: '1rem',
-    color: '#4b5563',
-  },
-editButtonsContainer: {
-  display: 'flex',
-  justifyContent:'left',
-  gap: '1rem',
-  marginTop: '2rem',
-},
-
-editButton: {
-  padding: '0.75rem 1.5rem',
-  fontSize: '1rem',
-  backgroundColor: '#007bff',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '10px',
-  cursor: 'pointer',
-  boxShadow: '0 4px 8px rgba(0, 123, 255, 0.2)',
-  transition: 'all 0.3s ease',
-},
-editButtonHover: {
-  backgroundColor: '#0056b3',
-},
-
 };
 
 export default ProfileScreen;
