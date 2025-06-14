@@ -23,9 +23,17 @@ def lambda_handler(event, context):
 
         table.put_item(Item=item)
 
+        # מחזיר את כל הנתונים שהלמדה הבאה צריכה
         return {
-            'statusCode': 200,
-            'body': json.dumps({'message': 'Request saved', 'requestId': request_id})
+            'requestId': request_id,
+            'fromUserEmail': event['fromUserEmail'],
+            'toUserEmail': event['toUserEmail'],
+            'offeredSkillId': event['offeredSkillId'],
+            'requestedSkillId': event['requestedSkillId'],
+            'fromUserName': event.get('fromUserName', ''),  # אתה יכול לוודא שזה קיים
+            'offeredSkillName': event.get('offeredSkillName', ''),
+            'requestedSkillName': event.get('requestedSkillName', ''),
+            'createdAt': timestamp
         }
 
     except Exception as e:

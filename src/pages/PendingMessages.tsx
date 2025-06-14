@@ -1,54 +1,110 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../contexts/UserContext';
 
 type Request = {
-  id: number;
+  id: string;
   userName: string;
   userEmail: string;
   userImage: string;
-  message: string; // original message/request text
-  offerDescription: string; // what the user is offering
+  message: string;
+  offerDescription: string;
+  taskToken: string;
+  status: string;
+  createdAt: string;
 };
-
-const mockSentRequests: Request[] = [
-  {
-    id: 1,
-    userName: 'Liam Cohen',
-    userEmail: 'liam@example.com',
-    userImage: 'https://i.pravatar.cc/150?img=32',
-    message: 'Waiting for your reply about exchanging skills.',
-    offerDescription: '',
-  },
-];
-
-const mockReceivedRequestsInitial: Request[] = [
-  {
-    id: 2,
-    userName: 'Emma Levi',
-    userEmail: 'emma@example.com',
-    userImage: 'https://i.pravatar.cc/150?img=45',
-    message: 'Would love to exchange skills with you!',
-    offerDescription: 'Can teach you Photoshop and Graphic Design basics.',
-  },
-];
 
 const PendingRequests: React.FC = () => {
   const { user } = useUserContext();
-  const [receivedRequests, setReceivedRequests] = useState(mockReceivedRequestsInitial);
+  const [receivedRequests, setReceivedRequests] = useState<Request[]>([]);
+  const [sentRequests, setSentRequests] = useState<Request[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const getRequests = async (): Promise<void> => {
+    try {
+      const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Request');
+      if (!response.ok) throw new Error('Failed to fetch requests');
+
+      const rawData = await response.json();
+
+      const received = rawData
+        .filter((r: any) => r.toUserEmail === user?.email)
+        .map((r: any) => ({
+          id: r.requestId,
+          userName: r.fromUserEmail?.split('@')[0] || 'Unknown',
+          userEmail: r.fromUserEmail,
+          userImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.fromUserEmail || 'User')}`,
+          message: `Wants to exchange skill: ${r.requestedSkillId}`,
+          offerDescription: `Offers skill: ${r.offeredSkillId}`,
+          taskToken: r.taskToken || '',
+          status: r.status || 'pending',
+          createdAt: r.createdAt || new Date().toISOString(),
+        }));
+
+      const sent = rawData
+        .filter((r: any) => r.fromUserEmail === user?.email)
+        .map((r: any) => ({
+          id: r.requestId,
+          userName: r.toUserEmail?.split('@')[0] || 'Unknown',
+          userEmail: r.toUserEmail,
+          userImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.toUserEmail || 'User')}`,
+          message: `You requested: ${r.requestedSkillId}`,
+          offerDescription: `You offered: ${r.offeredSkillId}`,
+          taskToken: r.taskToken || '',
+          status: r.status || 'pending',
+          createdAt: r.createdAt || new Date().toISOString(),
+        }));
+
+      setReceivedRequests(received);
+      setSentRequests(sent);
+    } catch (err) {
+      console.error('Error fetching requests:', err);
+      setError('Error fetching requests');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.email) {
+      getRequests();
+    }
+  }, [user]);
+
+  const handleDecision = async (id: string, approved: boolean) => {
+    const request = receivedRequests.find((r) => r.id === id);
+    if (!request) return;
+
+    try {
+      const response = await fetch('https://your-api-url/decision', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          taskToken: request.taskToken,
+          requestId: request.id,
+          approved: approved,
+        }),
+      });
+
+      const result = await response.json();
+      console.log('Decision sent:', result);
+
+      alert(`You ${approved ? 'accepted' : 'denied'} the request from ${request.userName}`);
+      setReceivedRequests((prev) => prev.filter((r) => r.id !== id));
+    } catch (error) {
+      console.error('Error sending decision:', error);
+      alert('Something went wrong while sending your decision.');
+    }
+  };
+
+  const handleAccept = (id: string) => handleDecision(id, true);
+  const handleDeny = (id: string) => handleDecision(id, false);
 
   if (!user) return <p>Loading user...</p>;
-
-  const handleAccept = (id: number) => {
-    alert(`You accepted the request with id ${id}`);
-    setReceivedRequests((prev) => prev.filter((r) => r.id !== id));
-    // TODO: call your API to accept the request
-  };
-
-  const handleDeny = (id: number) => {
-    alert(`You denied the request with id ${id}`);
-    setReceivedRequests((prev) => prev.filter((r) => r.id !== id));
-    // TODO: call your API to deny the request
-  };
+  if (loading) return <p>Loading requests...</p>;
+  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
 
   return (
     <div style={styles.container}>
@@ -56,19 +112,21 @@ const PendingRequests: React.FC = () => {
 
       <section>
         <h3 style={styles.subHeader}>Requests You Sent</h3>
-        {mockSentRequests.length === 0 ? (
+        {sentRequests.length === 0 ? (
           <p style={styles.noRequests}>No sent requests.</p>
         ) : (
           <ul style={styles.list}>
-            {mockSentRequests.map((req) => (
+            {sentRequests.map((req) => (
               <li key={req.id} style={styles.item}>
                 <img src={req.userImage} alt={req.userName} style={styles.avatar} />
                 <div style={styles.messageContent}>
                   <div style={styles.name}>{req.userName}</div>
                   <div style={styles.message}>{req.message}</div>
+                  <div style={styles.offerDescription}>{req.offerDescription}</div>
+                  <div style={styles.message}>Status: <strong>{req.status}</strong></div>
                 </div>
                 <div style={{ ...styles.statusLabel, backgroundColor: '#3b82f6' }}>
-                  Pending
+                  {req.status}
                 </div>
               </li>
             ))}
@@ -84,23 +142,32 @@ const PendingRequests: React.FC = () => {
           <ul style={styles.list}>
             {receivedRequests.map((req) => (
               <li key={req.id} style={styles.itemVertical}>
-                <img src={req.userImage} alt={req.userName} style={styles.avatar} />
+                <img src={req.userImage} alt={req.userEmail} style={styles.avatar} />
                 <div style={styles.messageContentVertical}>
-                  <div style={styles.name}>{req.userName}</div>
+                  <div style={styles.name}>{req.userEmail}</div>
                   <div style={styles.message}>{req.message}</div>
-                  <div style={styles.offerDescription}>
-                    <strong>Offering:</strong> {req.offerDescription}
+                  <div style={styles.offerDescription}>{req.offerDescription}</div>
+                  <div style={styles.message}>
+                    <strong>Status:</strong>{' '}
+                    <span style={{ color: req.status === 'pending' ? '#f59e0b' : '#10b981' }}>
+                      {req.status}
+                    </span>
+                  </div>
+                  <div style={styles.message}>
+                    <strong>Created:</strong> {new Date(req.createdAt).toLocaleString()}
                   </div>
                   <div style={styles.buttonsContainer}>
                     <button
                       style={{ ...styles.button, ...styles.acceptButton }}
                       onClick={() => handleAccept(req.id)}
+                      disabled={req.status !== 'pending'}
                     >
                       Accept
                     </button>
                     <button
                       style={{ ...styles.button, ...styles.denyButton }}
                       onClick={() => handleDeny(req.id)}
+                      disabled={req.status !== 'pending'}
                     >
                       Deny
                     </button>

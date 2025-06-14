@@ -1,8 +1,5 @@
-
-
-
 {
-  "Comment": "A description of my state machine",
+  "Comment": "Skill Exchange Request State Machine",
   "StartAt": "SaveRequestToDynamoDB",
   "States": {
     "SaveRequestToDynamoDB": {
@@ -36,7 +33,7 @@
       "Parameters": {
         "FunctionName": "arn:aws:lambda:us-east-1:077645562684:function:SnsRequest:$LATEST",
         "Payload": {
-          "input.$": "$"
+          "input.$": "$.input"
         }
       },
       "Retry": [
@@ -60,13 +57,24 @@
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
       "TimeoutSeconds": 86400,
       "Parameters": {
-        "FunctionName": "arn:aws:lambda:us-east-1:077645562684:function:WaitForUserAprroval:$LATEST",
+        "FunctionName": "arn:aws:lambda:us-east-1:077645562684:function:WaitForUserApproval:$LATEST",
         "Payload": {
-          "token.$": "$$.Task.Token",
-          "input.$": "$"
+          "taskToken.$": "$$.Task.Token",
+          "input.$": "$.input"
         }
       },
-      "Next": "CreateChat"
+      "Next": "CheckApproval"
+    },
+    "CheckApproval": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringEquals": "Approved",
+          "Next": "CreateChat"
+        }
+      ],
+      "Default": "EndProcess"
     },
     "CreateChat": {
       "Type": "Task",
@@ -74,10 +82,15 @@
       "Parameters": {
         "FunctionName": "arn:aws:lambda:us-east-1:077645562684:function:createChat:$LATEST",
         "Payload": {
-          "input.$": "$"
+          "user1.$": "$.input.fromUserEmail",
+          "user2.$": "$.input.toUserEmail",
+          "status.$": "$.status"
         }
       },
       "End": true
+    },
+    "EndProcess": {
+      "Type": "Succeed"
     }
   }
 }
