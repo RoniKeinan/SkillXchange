@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useUserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.png';
+import { v4 as uuidv4 } from 'uuid';
 
 const SkillDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,19 +24,57 @@ const SkillDetails: React.FC = () => {
     </div>
   );
 
-  const handleExchangeRequest = () => {
-    if (requestSent) {
-      const confirmCancel = confirm("❌ Cancel your exchange request?");
-      if (confirmCancel) {
-        setRequestSent(false);
-        alert("Request canceled.");
+console.log(user)
+
+const handleExchangeRequest = async () => {
+  if (!user?.email) return alert("User not logged in.");
+
+  if (requestSent) {
+    const confirmCancel = confirm("❌ Cancel your exchange request?");
+    if (confirmCancel) {
+      setRequestSent(false);
+      alert("Request canceled.");
+
+      // TODO: Optional delete/cancel API
+    }
+  } else {
+    const requestId = uuidv4();
+    const createdAt = new Date().toISOString();
+
+    const payload = {
+      requestId: { S: requestId },
+      createdAt: { S: createdAt },
+      fromUserEmail: { S: user.email },
+      toUserEmail: { S: skill.contactEmail }, // assuming this exists
+      offeredSkills: { S: user.mySkills || "skill-offered-placeholder" },
+      requestedSkillId: { S: skill.id },
+      status: { S: "pending" },
+    };
+
+    try {
+      const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send request.");
       }
-    } else {
+
+      const data = await response.json();
+      console.log("✅ Request posted:", data);
       setRequestSent(true);
       alert(`🔁 Request sent to ${skill.contactName} to exchange skills!`);
+    } catch (err) {
+      console.error("❌ Error sending request:", err);
+      alert("Something went wrong while sending the request.");
     }
-    // In the future you can call a real API here
-  };
+  }
+};
+
 
   return (
     <div style={styles.bg}>

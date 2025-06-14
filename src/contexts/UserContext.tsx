@@ -22,6 +22,7 @@ interface User {
   street: string;
   houseNumber: string;
   image?: string;
+  mySkills: [];
 }
 
 interface UserContextType {
