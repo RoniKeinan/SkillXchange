@@ -76,7 +76,7 @@ const PendingRequests: React.FC = () => {
     if (!request) return;
 
     try {
-      const response = await fetch('https://your-api-url/decision', {
+      const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
