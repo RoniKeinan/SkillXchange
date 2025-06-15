@@ -4,7 +4,8 @@ import { useUserContext } from '../contexts/UserContext';
 type Request = {
   id: string;
   userName: string;
-  userEmail: string;
+  fromUserEmail: string;
+  toUserEmail: string;
   userImage: string;
   message: string;
   offerDescription: string;
@@ -32,7 +33,8 @@ const PendingRequests: React.FC = () => {
         .map((r: any) => ({
           id: r.requestId,
           userName: r.fromUserEmail?.split('@')[0] || 'Unknown',
-          userEmail: r.fromUserEmail,
+          fromUserEmail: r.fromUserEmail,
+          toUserEmail: r.toUserEmail,
           userImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.fromUserEmail || 'User')}`,
           message: `Wants to exchange skill: ${r.requestedSkillId}`,
           offerDescription: `Offers skill: ${r.offeredSkillId}`,
@@ -46,7 +48,8 @@ const PendingRequests: React.FC = () => {
         .map((r: any) => ({
           id: r.requestId,
           userName: r.toUserEmail?.split('@')[0] || 'Unknown',
-          userEmail: r.toUserEmail,
+          fromUserEmail: r.fromUserEmail,
+          toUserEmail: r.toUserEmail,
           userImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.toUserEmail || 'User')}`,
           message: `You requested: ${r.requestedSkillId}`,
           offerDescription: `You offered: ${r.offeredSkillId}`,
@@ -54,7 +57,6 @@ const PendingRequests: React.FC = () => {
           status: r.status || 'pending',
           createdAt: r.createdAt || new Date().toISOString(),
         }));
-
       setReceivedRequests(received);
       setSentRequests(sent);
     } catch (err) {
@@ -71,33 +73,61 @@ const PendingRequests: React.FC = () => {
     }
   }, [user]);
 
+
+
   const handleDecision = async (id: string, approved: boolean) => {
     const request = receivedRequests.find((r) => r.id === id);
-    if (!request) return;
+
+    if (!request) {
+      console.error('❌ Request not found');
+      return;
+    }
+
+    if (!request.taskToken || !request.fromUserEmail || !request.toUserEmail) {
+      console.error('❌ Missing required fields:', {
+        taskToken: request.taskToken,
+        fromUserEmail: request.fromUserEmail,
+        toUserEmail: request.toUserEmail,
+      });
+      alert('This request is missing necessary information. Please try again later.');
+      return;
+    }
 
     try {
+      const payload = {
+         taskToken: request.taskToken,
+        input: {
+         
+          requestId: request.id,
+          approved: approved,
+          fromUserEmail: request.fromUserEmail,
+          toUserEmail: request.toUserEmail,
+        }
+      };
+
       const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          taskToken: request.taskToken,
-          requestId: request.id,
-          approved: approved,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
-      console.log('Decision sent:', result);
+      console.log('✅ Decision sent:', result);
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Unknown error');
+      }
 
       alert(`You ${approved ? 'accepted' : 'denied'} the request from ${request.userName}`);
       setReceivedRequests((prev) => prev.filter((r) => r.id !== id));
     } catch (error) {
-      console.error('Error sending decision:', error);
+      console.error('❌ Error sending decision:', error);
       alert('Something went wrong while sending your decision.');
     }
   };
+
 
   const handleAccept = (id: string) => handleDecision(id, true);
   const handleDeny = (id: string) => handleDecision(id, false);
@@ -142,9 +172,9 @@ const PendingRequests: React.FC = () => {
           <ul style={styles.list}>
             {receivedRequests.map((req) => (
               <li key={req.id} style={styles.itemVertical}>
-                <img src={req.userImage} alt={req.userEmail} style={styles.avatar} />
+                <img src={req.userImage} alt={req.fromUserEmail} style={styles.avatar} />
                 <div style={styles.messageContentVertical}>
-                  <div style={styles.name}>{req.userEmail}</div>
+                  <div style={styles.name}>{req.fromUserEmail}</div>
                   <div style={styles.message}>{req.message}</div>
                   <div style={styles.offerDescription}>{req.offerDescription}</div>
                   <div style={styles.message}>

@@ -6,34 +6,56 @@ dynamodb = boto3.resource('dynamodb')
 stepfunctions = boto3.client('stepfunctions')
 TABLE_NAME = 'SkillExchangeRequests'
 
+# Headers for CORS
+cors_headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "OPTIONS,POST"
+}
+
 def lambda_handler(event, context):
     print("Received event:", json.dumps(event, indent=2))
 
+    # 🔧 תיקון: אם הבקשה הגיעה מה-Frontend, הפיילוד יהיה ב-body כמחרוזת JSON
+    if "body" in event:
+        try:
+            event = json.loads(event["body"])
+        except Exception as e:
+            return {
+                'statusCode': 400,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'error': 'Failed to parse JSON body',
+                    'details': str(e),
+                    'rawBody': event.get("body")
+                })
+            }
+
     task_token = event.get('taskToken')
-    input_data = event.get('input', {})
+    input_data = event.get('input', {})  # כאן נמצא הפיילוד של requestId וכו'
 
     request_id = input_data.get('requestId')
-    approved = input_data.get('approved')  # Might be None
-    user1 = input_data.get('fromUserEmail')
-    user2 = input_data.get('toUserEmail')
+    approved = input_data.get('approved')
+    user1 = event.get('fromUserEmail')
+    user2 = event.get('toUserEmail')
 
     if not request_id or not task_token:
         return {
             'statusCode': 400,
+            'headers': cors_headers,
             'body': json.dumps({
                 'error': 'Missing required parameters: requestId or taskToken',
                 'input': event
             })
         }
 
+    # Step 1: Save taskToken (and maybe status) to DynamoDB
     table = dynamodb.Table(TABLE_NAME)
 
-    # Step 1: Save taskToken in DynamoDB
     try:
         update_expression = 'SET taskToken = :tokenVal'
         expression_values = {':tokenVal': task_token}
-
-        expression_names = {}  # Only used if approved is not None
+        expression_names = {}
 
         if approved is not None:
             new_status = 'Approved' if approved else 'Rejected'
@@ -48,23 +70,24 @@ def lambda_handler(event, context):
             'ReturnValues': 'UPDATED_NEW'
         }
 
-        # Add ExpressionAttributeNames only if needed
         if expression_names:
             update_args['ExpressionAttributeNames'] = expression_names
 
         response = table.update_item(**update_args)
         print(f"✅ DynamoDB updated: {response}")
+
     except ClientError as e:
         print(f"❌ DynamoDB update failed: {e}")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({
                 'error': 'Failed to update DynamoDB',
                 'details': str(e)
             })
         }
 
-    # Step 2: If approved/rejected – notify Step Function
+    # Step 2: If decision made, notify Step Function
     if approved is not None:
         try:
             if approved:
@@ -89,6 +112,7 @@ def lambda_handler(event, context):
             print(f"❌ Error sending result to Step Functions: {e}")
             return {
                 'statusCode': 500,
+                'headers': cors_headers,
                 'body': json.dumps({
                     'error': 'Failed to notify Step Function',
                     'details': str(e)
@@ -97,6 +121,7 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
+        'headers': cors_headers,
         'body': json.dumps({
             'message': 'Task processed successfully',
             'requestId': request_id,
