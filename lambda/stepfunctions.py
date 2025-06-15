@@ -25,8 +25,17 @@
           "JitterStrategy": "FULL"
         }
       ],
+      "Next": "ParseBody"
+    },
+
+    "ParseBody": {
+      "Type": "Pass",
+      "Parameters": {
+        "input.$": "States.StringToJson($.Payload.body)"
+      },
       "Next": "snsRequest"
     },
+
     "snsRequest": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
@@ -52,12 +61,13 @@
       ],
       "Next": "WaitForUserApproval"
     },
+
     "WaitForUserApproval": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
       "TimeoutSeconds": 86400,
       "Parameters": {
-        "FunctionName": "arn:aws:lambda:us-east-1:077645562684:function:WaitForUserApproval:$LATEST",
+        "FunctionName": "arn:aws:lambda:us-east-1:077645562684:function:UserRequestDecision:$LATEST",
         "Payload": {
           "taskToken.$": "$$.Task.Token",
           "input.$": "$.input"
@@ -65,6 +75,7 @@
       },
       "Next": "CheckApproval"
     },
+
     "CheckApproval": {
       "Type": "Choice",
       "Choices": [
@@ -76,6 +87,7 @@
       ],
       "Default": "EndProcess"
     },
+
     "CreateChat": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
@@ -89,6 +101,7 @@
       },
       "End": true
     },
+
     "EndProcess": {
       "Type": "Succeed"
     }
