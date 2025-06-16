@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../contexts/UserContext';
+import { useSkillContext } from '../contexts/SkillsContext';
 
 type Request = {
   id: string;
@@ -16,10 +17,18 @@ type Request = {
 
 const PendingRequests: React.FC = () => {
   const { user } = useUserContext();
+  const { skills } = useSkillContext(); // Correct usage!
   const [receivedRequests, setReceivedRequests] = useState<Request[]>([]);
   const [sentRequests, setSentRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper function to get the skill name by ID
+  const getSkillName = (id: string | number | undefined) => {
+    if (!id) return '';
+    const skill = skills.find(s => String(s.id) === String(id));
+    return skill?.skillName || skill?.skillName || String(id);
+  };
 
   const getRequests = async (): Promise<void> => {
     try {
@@ -36,8 +45,8 @@ const PendingRequests: React.FC = () => {
           fromUserEmail: r.fromUserEmail,
           toUserEmail: r.toUserEmail,
           userImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.fromUserEmail || 'User')}`,
-          message: `Wants to exchange skill: ${r.requestedSkillId}`,
-          offerDescription: `Offers skill: ${r.offeredSkillId}`,
+          message: `Wants to exchange skill: ${getSkillName(r.requestedSkillId)}`,
+          offerDescription: `Offers skill: ${getSkillName(r.offeredSkillId)}`,
           taskToken: r.taskToken || '',
           status: r.status || 'pending',
           createdAt: r.createdAt || new Date().toISOString(),
@@ -51,12 +60,13 @@ const PendingRequests: React.FC = () => {
           fromUserEmail: r.fromUserEmail,
           toUserEmail: r.toUserEmail,
           userImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.toUserEmail || 'User')}`,
-          message: `You requested: ${r.requestedSkillId}`,
-          offerDescription: `You offered: ${r.offeredSkillId}`,
+          message: `You requested: ${getSkillName(r.requestedSkillId)}`,
+          offerDescription: `You offered: ${getSkillName(r.offeredSkillId)}`,
           taskToken: r.taskToken || '',
           status: r.status || 'pending',
           createdAt: r.createdAt || new Date().toISOString(),
         }));
+
       setReceivedRequests(received);
       setSentRequests(sent);
     } catch (err) {
@@ -67,14 +77,15 @@ const PendingRequests: React.FC = () => {
     }
   };
 
+  // Make sure to fetch requests after both user and skills are loaded
   useEffect(() => {
-    if (user?.email) {
+    if (user?.email && skills.length > 0) {
       getRequests();
     }
-  }, [user]);
+    // eslint-disable-next-line
+  }, [user, skills]);
 
-
-
+  // Handle Accept/Deny (wrappers)
   const handleDecision = async (id: string, approved: boolean) => {
     const request = receivedRequests.find((r) => r.id === id);
 
@@ -95,9 +106,8 @@ const PendingRequests: React.FC = () => {
 
     try {
       const payload = {
-         taskToken: request.taskToken,
+        taskToken: request.taskToken,
         input: {
-         
           requestId: request.id,
           approved: approved,
           fromUserEmail: request.fromUserEmail,
@@ -128,11 +138,12 @@ const PendingRequests: React.FC = () => {
     }
   };
 
-
+  // Add these two helpers:
   const handleAccept = (id: string) => handleDecision(id, true);
   const handleDeny = (id: string) => handleDecision(id, false);
 
-  if (!user) return <p>Loading user...</p>;
+  // Loading guards
+  if (!user || skills.length === 0) return <p>Loading...</p>;
   if (loading) return <p>Loading requests...</p>;
   if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
 
