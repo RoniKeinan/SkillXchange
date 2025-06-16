@@ -86,57 +86,62 @@ const PendingRequests: React.FC = () => {
   }, [user, skills]);
 
   // Handle Accept/Deny (wrappers)
-  const handleDecision = async (id: string, approved: boolean) => {
-    const request = receivedRequests.find((r) => r.id === id);
+const handleDecision = async (id: string, approved: boolean) => {
+  const request = receivedRequests.find((r) => r.id === id);
 
-    if (!request) {
-      console.error('❌ Request not found');
-      return;
-    }
+  if (!request) {
+    console.error('❌ Request not found');
+    return;
+  }
 
-    if (!request.taskToken || !request.fromUserEmail || !request.toUserEmail) {
-      console.error('❌ Missing required fields:', {
-        taskToken: request.taskToken,
+  if (!request.taskToken || !request.fromUserEmail || !request.toUserEmail) {
+    console.error('❌ Missing required fields:', {
+      taskToken: request.taskToken,
+      fromUserEmail: request.fromUserEmail,
+      toUserEmail: request.toUserEmail,
+    });
+    alert('This request is missing necessary information. Please try again later.');
+    return;
+  }
+
+  try {
+    const payload = {
+      taskToken: request.taskToken,
+      input: {
+        requestId: request.id,
+        approved: approved,
         fromUserEmail: request.fromUserEmail,
         toUserEmail: request.toUserEmail,
-      });
-      alert('This request is missing necessary information. Please try again later.');
-      return;
-    }
-
-    try {
-      const payload = {
-        taskToken: request.taskToken,
-        input: {
-          requestId: request.id,
-          approved: approved,
-          fromUserEmail: request.fromUserEmail,
-          toUserEmail: request.toUserEmail,
-        }
-      };
-
-      const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-      console.log('✅ Decision sent:', result);
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Unknown error');
       }
+    };
 
-      alert(`You ${approved ? 'accepted' : 'denied'} the request from ${request.userName}`);
-      setReceivedRequests((prev) => prev.filter((r) => r.id !== id));
-    } catch (error) {
-      console.error('❌ Error sending decision:', error);
-      alert('Something went wrong while sending your decision.');
+    const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    console.log('✅ Decision sent:', result);
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Unknown error');
     }
-  };
+
+    alert(`You ${approved ? 'accepted' : 'denied'} the request from ${request.userName}`);
+
+    // 👉 Update status in place
+    setReceivedRequests((prev) =>
+      prev.map((r) =>
+        r.id === id ? { ...r, status: approved ? 'accepted' : 'denied' } : r
+      )
+    );
+  } catch (error) {
+    console.error('❌ Error sending decision:', error);
+    alert('Something went wrong while sending your decision.');
+  }
+};
+
 
   const sortedReceived = [...receivedRequests].sort((a, b) => {
   if (a.status === 'pending' && b.status !== 'pending') return -1;
