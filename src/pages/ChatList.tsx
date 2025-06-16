@@ -14,8 +14,12 @@ const ChatList: React.FC = () => {
   const [userChats, setUserChats] = useState<ChatUser[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
+
+
 
   useEffect(() => {
+   
     const fetchChats = async () => {
       if (!user || !user.email) return;
 
