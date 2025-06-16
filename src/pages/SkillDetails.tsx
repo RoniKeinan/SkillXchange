@@ -48,7 +48,7 @@ const SkillDetails: React.FC = () => {
         offeredSkillId: Array.isArray(user.mySkills) && user.mySkills.length > 0
           ? user.mySkills
           : "skill-offered-placeholder",
-        requestedSkillId: skill.id,
+        requestedSkillId: skill.skillName,
         status: "pending",
 
       };

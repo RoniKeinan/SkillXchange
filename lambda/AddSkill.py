@@ -14,7 +14,6 @@ TABLE_NAME = "Skills"
 users_table = dynamodb.Table("Users")
 table = dynamodb.Table(TABLE_NAME)
 
-# Validate Base64
 def is_valid_base64(data):
     try:
         base64.b64decode(data, validate=True)
@@ -22,7 +21,6 @@ def is_valid_base64(data):
     except Exception:
         return False
 
-# Decimal serializer for JSON
 def decimal_default(obj):
     if isinstance(obj, Decimal):
         return float(obj)
@@ -46,7 +44,6 @@ def lambda_handler(event, context):
 
         body = json.loads(event.get('body', '{}'))
 
-        # Handle image uploads
         images = body.get('images', [])
         if not isinstance(images, list):
             return {
@@ -88,9 +85,11 @@ def lambda_handler(event, context):
 
         # Create skill item
         new_id = str(uuid.uuid4())
+        skill_name = body.get('title')
+
         item = {
             "id": new_id,
-            "skillName": body.get('title'),
+            "skillName": skill_name,
             "category": body.get('category', 'Uncategorized'),
             "description": body.get('description', ''),
             "contactName": body.get('contactName', ''),
@@ -101,15 +100,41 @@ def lambda_handler(event, context):
 
         # Update user's mySkills
         user_id = body.get('userId')
-        if user_id:
-            users_table.update_item(
-                Key={"id": user_id},
-                UpdateExpression="SET mySkills = list_append(if_not_exists(mySkills, :empty_list), :new_skill_id)",
-                ExpressionAttributeValues={
-                    ":new_skill_id": [new_id],
-                    ":empty_list": []
+        if not user_id:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "Missing userId in request"}),
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
                 }
-            )
+            }
+
+        # Retrieve current user data
+        user_response = users_table.get_item(Key={"id": user_id})
+        user_item = user_response.get('Item', {})
+        existing_skills = user_item.get('mySkills', [])
+
+        # Check for duplicate skill name
+        if skill_name in existing_skills:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "Skill name already exists in user's mySkills"}),
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            }
+
+        # Update skills list
+        users_table.update_item(
+            Key={"id": user_id},
+            UpdateExpression="SET mySkills = list_append(if_not_exists(mySkills, :empty_list), :new_skill)",
+            ExpressionAttributeValues={
+                ":new_skill": [skill_name],
+                ":empty_list": []
+            }
+        )
 
         return {
             "statusCode": 200,

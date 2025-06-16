@@ -27,8 +27,11 @@ def lambda_handler(event, context):
 
         to_email = data['toUserEmail']
         from_user = data['fromUserName']
-        offered_skill = data['offeredSkillName']
-        requested_skill = data['requestedSkillName']
+        offered_skill = (
+           ", ".join(data['offeredSkillId']) if isinstance(data['offeredSkillId'], list)
+           else str(data['offeredSkillId'])
+        )
+        requested_skill = data['requestedSkillId']
 
         # יוצרים/מקבלים נושא ייחודי למשתמש
         topic_arn = get_or_create_user_topic(to_email)
