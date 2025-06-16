@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUserContext } from '../contexts/UserContext';
+import { useLocation } from 'react-router-dom';
 
 const ChatMessages: React.FC = () => {
   const { user } = useUserContext();
   const { chatId } = useParams();
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState('');
+   const location = useLocation();
+  const otherUser = location.state?.otherUser;
 
   const fetchMessages = async () => {
     const res = await fetch(
@@ -14,6 +17,7 @@ const ChatMessages: React.FC = () => {
     );
     if (res.ok) {
       const data = await res.json();
+      
       setMessages(data);
     }
   };
@@ -41,7 +45,7 @@ const ChatMessages: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>Chat</h2>
+      <h2 style={styles.header}>Chat with - {otherUser} </h2>
 
       <div style={styles.messageContainer}>
         {messages.map((msg, idx) => (

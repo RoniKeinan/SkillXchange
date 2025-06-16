@@ -14,12 +14,13 @@ const ChatList: React.FC = () => {
   const [userChats, setUserChats] = useState<ChatUser[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   
 
 
 
   useEffect(() => {
-   
+
     const fetchChats = async () => {
       if (!user || !user.email) return;
 
@@ -31,6 +32,7 @@ const ChatList: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
           setUserChats(data);
+
         } else {
           console.error('Failed to fetch chats');
         }
@@ -47,6 +49,7 @@ const ChatList: React.FC = () => {
   if (!user) return <p>Loading user...</p>;
   if (loading) return <p>Loading chats...</p>;
 
+
   return (
     <div style={styles.page}>
       <div style={styles.container}>
@@ -61,7 +64,13 @@ const ChatList: React.FC = () => {
                 <li
                   key={chat.chatId || idx}
                   style={styles.chatItem}
-                  onClick={() => navigate(`/chat/${chat.chatId}`)}
+                  onClick={() =>
+                    navigate(`/chat/${chat.chatId}`, {
+                      state: {
+                        otherUser: chat.user1 === user.email ? chat.user2 : chat.user1
+                      }
+                    })
+                  }
                   tabIndex={0}
                   onKeyDown={e => {
                     if (e.key === 'Enter') navigate(`/chat/${chat.chatId}`);
