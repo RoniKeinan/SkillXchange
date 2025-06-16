@@ -138,6 +138,13 @@ const PendingRequests: React.FC = () => {
     }
   };
 
+  const sortedReceived = [...receivedRequests].sort((a, b) => {
+  if (a.status === 'pending' && b.status !== 'pending') return -1;
+  if (a.status !== 'pending' && b.status === 'pending') return 1;
+  return 0;
+});
+
+
   // Add these two helpers:
   const handleAccept = (id: string) => handleDecision(id, true);
   const handleDeny = (id: string) => handleDecision(id, false);
@@ -181,7 +188,7 @@ const PendingRequests: React.FC = () => {
           <p style={styles.noRequests}>No received requests.</p>
         ) : (
           <ul style={styles.list}>
-            {receivedRequests.map((req) => (
+            {sortedReceived.map((req) => (
               <li key={req.id} style={styles.itemVertical}>
                 <img src={req.userImage} alt={req.fromUserEmail} style={styles.avatar} />
                 <div style={styles.messageContentVertical}>
@@ -197,22 +204,23 @@ const PendingRequests: React.FC = () => {
                   <div style={styles.message}>
                     <strong>Created:</strong> {new Date(req.createdAt).toLocaleString()}
                   </div>
-                  <div style={styles.buttonsContainer}>
-                    <button
-                      style={{ ...styles.button, ...styles.acceptButton }}
-                      onClick={() => handleAccept(req.id)}
-                      disabled={req.status !== 'pending'}
-                    >
-                      Accept
-                    </button>
-                    <button
-                      style={{ ...styles.button, ...styles.denyButton }}
-                      onClick={() => handleDeny(req.id)}
-                      disabled={req.status !== 'pending'}
-                    >
-                      Deny
-                    </button>
-                  </div>
+                  {req.status === 'pending' && (
+                    <div style={styles.buttonsContainer}>
+                      <button
+                        style={{ ...styles.button, ...styles.acceptButton }}
+                        onClick={() => handleAccept(req.id)}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        style={{ ...styles.button, ...styles.denyButton }}
+                        onClick={() => handleDeny(req.id)}
+                      >
+                        Deny
+                      </button>
+                    </div>
+                  )}
+
                 </div>
               </li>
             ))}
