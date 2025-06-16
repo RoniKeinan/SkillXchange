@@ -41,65 +41,84 @@ const ChatList: React.FC = () => {
   }, [user]);
 
   if (!user) return <p>Loading user...</p>;
-
   if (loading) return <p>Loading chats...</p>;
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.header}>💬 Your Chats</h2>
-      {userChats.length === 0 ? (
-        <p style={styles.noChats}>You have no chats yet.</p>
-      ) : (
-        <ul style={styles.list}>
-          {userChats.map((chat, idx) => {
-            const otherUser = chat.user1 === user.email ? chat.user2 : chat.user1;
-            return (
-              <li
-                key={chat.chatId || idx}
-                style={styles.chatItem}
-                onClick={() => navigate(`/chat/${chat.chatId}`)} // Navigate to messages page
-              >
-                <img
-                  src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${otherUser}`}
-                  alt={otherUser}
-                  style={styles.avatar}
-                />
-                <div>
-                  <div style={styles.name}>{otherUser}</div>
-                  <div style={styles.lastMessage}>
-                    Chat started on: {new Date(chat.createdAt).toLocaleDateString()}
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <h2 style={styles.header}>Chat List</h2>
+        {userChats.length === 0 ? (
+          <p style={styles.noChats}>You have no chats yet.</p>
+        ) : (
+          <ul style={styles.list}>
+            {userChats.map((chat, idx) => {
+              const otherUser = chat.user1 === user.email ? chat.user2 : chat.user1;
+              return (
+                <li
+                  key={chat.chatId || idx}
+                  style={styles.chatItem}
+                  onClick={() => navigate(`/chat/${chat.chatId}`)}
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') navigate(`/chat/${chat.chatId}`);
+                  }}
+                >
+                  <img
+                    src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${otherUser}`}
+                    alt={otherUser}
+                    style={styles.avatar}
+                  />
+                  <div style={styles.infoBlock}>
+                    <div style={styles.name}>{otherUser}</div>
+                    <div style={styles.lastMessage}>
+                      <span role="img" aria-label="clock">🕒</span> {new Date(chat.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
+  page: {
+    minHeight: '100vh',
+    background: 'linear-gradient(120deg, #e0e7ff 0%, #f9fafb 60%)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '2rem 0',
+  },
   container: {
-    maxWidth: '500px',
-    margin: '2rem auto',
-    padding: '1rem',
+    width: '100%',
+    maxWidth: '430px',
     backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    borderRadius: '1.2rem',
+    boxShadow: '0 6px 36px 0 rgba(44, 104, 255, 0.13)',
+    padding: '2.2rem 2rem 2rem 2rem',
+    margin: '2rem auto',
     fontFamily: 'Arial, sans-serif',
   },
   header: {
-    marginBottom: '1rem',
-    fontSize: '1.5rem',
-    borderBottom: '1px solid #ddd',
-    paddingBottom: '0.5rem',
-    color: '#1e3a8a',
+    marginBottom: '1.8rem',
+    fontSize: '2.1rem',
+    fontWeight: 800,
+    color: '#3730a3',
+    textAlign: 'center' as const,
+    letterSpacing: '-1.5px',
+    borderBottom: '1px solid #e5e7eb',
+    paddingBottom: '0.6rem',
   },
   noChats: {
     color: '#666',
     fontStyle: 'italic',
     textAlign: 'center',
+    fontSize: '1.14rem',
+    padding: '1.8rem 0',
   },
   list: {
     listStyle: 'none',
@@ -109,24 +128,45 @@ const styles: { [key: string]: React.CSSProperties } = {
   chatItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
-    padding: '0.75rem 0',
-    borderBottom: '1px solid #eee',
+    gap: '1.1rem',
+    padding: '1rem 0.8rem',
+    borderRadius: '1rem',
+    marginBottom: '0.7rem',
     cursor: 'pointer',
-  },
+    transition: 'background 0.18s, transform 0.15s',
+    backgroundColor: '#f3f4f6',
+    border: '1px solid #eef2ff',
+    outline: 'none',
+    boxShadow: '0 2px 7px rgba(59,130,246,0.06)',
+  } as React.CSSProperties,
   avatar: {
-    width: '50px',
-    height: '50px',
+    width: '54px',
+    height: '54px',
     borderRadius: '50%',
     objectFit: 'cover',
+    background: '#dbeafe',
+    border: '2px solid #c7d2fe',
+    boxShadow: '0 2px 6px #e0e7ff',
+  },
+  infoBlock: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   name: {
-    fontWeight: 'bold',
-    fontSize: '1rem',
+    fontWeight: 700,
+    fontSize: '1.18rem',
+    color: '#1e3a8a',
+    marginBottom: '0.19rem',
+    letterSpacing: '-0.5px',
   },
   lastMessage: {
-    fontSize: '0.9rem',
-    color: '#555',
+    fontSize: '0.97rem',
+    color: '#64748b',
+    fontWeight: 500,
+    marginTop: '0.08rem',
+    letterSpacing: '-0.1px',
   },
 };
 

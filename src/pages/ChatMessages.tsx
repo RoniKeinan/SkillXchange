@@ -41,7 +41,7 @@ const ChatMessages: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>🗨️ Chat</h2>
+      <h2 style={styles.header}>Chat</h2>
 
       <div style={styles.messageContainer}>
         {messages.map((msg, idx) => (
