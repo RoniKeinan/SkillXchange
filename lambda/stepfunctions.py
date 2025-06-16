@@ -56,7 +56,7 @@
       "Type": "Pass",
       "Parameters": {
         "parsedBody.$": "$.UserDecisionResult",
-          "input.$": "$.input"
+        "input.$": "$.input"
       },
       "ResultPath": "$.parsed",
       "Next": "ExtractStatus"

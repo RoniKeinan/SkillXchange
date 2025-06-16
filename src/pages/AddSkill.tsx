@@ -3,6 +3,7 @@ import { useCategoryContext } from '../contexts/CategoryContext';
 import { useUserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
+import { useEffect } from 'react';
 
 const containerStyle: CSSProperties = {
   maxWidth: '510px',
@@ -99,7 +100,7 @@ const AddSkillPage: React.FC = () => {
   const navigate = useNavigate();
   const { getAllSkills } = useSkillContext();
   const { categories, addCategory } = useCategoryContext();
-  const { user } = useUserContext();
+  const { user ,setUser} = useUserContext();
   const [images, setImages] = useState<string[]>([]);
   const [skillName, setSkillName] = useState('');
   const [description, setDescription] = useState('');
@@ -113,65 +114,84 @@ const AddSkillPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleAddSkill = async () => {
-    const categoryName = isAddingNewCategory ? newCategoryName.trim() : selectedCategory;
+  const categoryName = isAddingNewCategory ? newCategoryName.trim() : selectedCategory;
 
-    if (!skillName.trim() || !categoryName || !description.trim()) {
-      alert('Please fill in all fields: skill name, category, and description.');
-      return;
-    }
+  if (!skillName.trim() || !categoryName || !description.trim()) {
+    alert('Please fill in all fields: skill name, category, and description.');
+    return;
+  }
 
-    if (!user) {
-      alert("You must be logged in to add a skill.");
-      return;
-    }
+  if (!user) {
+    alert("You must be logged in to add a skill.");
+    return;
+  }
 
-    const categoryExists = categories.some(
-      (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
-    );
-    if (!categoryExists && isAddingNewCategory) {
-      addCategory(categoryName);
-    }
+  const categoryExists = categories.some(
+    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+  );
+  if (!categoryExists && isAddingNewCategory) {
+    addCategory(categoryName);
+  }
 
-    const payload = {
-      title: skillName,
-      category: categoryName,
-      description: description,
-      contactName: `${user.firstName} ${user.lastName}`,
-      contactEmail: user.email,
-      userId: user.email,
-      images: images,
-    };
-
-    try {
-      const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Skills', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert('Skill added successfully!');
-        setSkillName('');
-        setDescription('');
-        setSelectedCategory('');
-        setNewCategoryName('');
-        setImages([]);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        await getAllSkills();
-        navigate('/')
-      } else {
-        const errorData = await response.json();
-        alert('Failed to add skill.');
-      }
-    } catch (error) {
-      alert('An error occurred while adding the skill.');
-    }
+  const payload = {
+    title: skillName,
+    category: categoryName,
+    description: description,
+    contactName: `${user.firstName} ${user.lastName}`,
+    contactEmail: user.email,
+    userId: user.id,
+    images: images,
   };
+
+  try {
+    const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Skills', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      alert('Skill added successfully!');
+      setSkillName('');
+      setDescription('');
+      setSelectedCategory('');
+      setNewCategoryName('');
+      setImages([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      
+      if (result.updatedUser) {
+        setUser(result.updatedUser);
+      } else {
+        // אחרת, תקרא לפונקציה שמביאה את היוזר מהשרת
+        const userResponse = await fetch(`https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/User?id=${user.id}`);
+        if (userResponse.ok) {
+          const updatedUser = await userResponse.json();
+          setUser(updatedUser);
+        }
+      }
+      
+
+      await getAllSkills();
+      navigate('/');
+    } else {
+      const errorData = await response.json();
+      alert('Failed to add skill.');
+    }
+  } catch (error) {
+    alert('An error occurred while adding the skill.');
+  }
+};
+
+ useEffect(() => {
+  console.log(user)
+  console.log(user?.mySkills);
+}, [user]);
 
   return (
     <div style={{
