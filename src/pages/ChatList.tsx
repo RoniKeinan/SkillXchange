@@ -1,53 +1,46 @@
-
-
-import React from 'react';
-import { useUserContext } from '../contexts/UserContext'; // Adjust path as needed
+import React, { useEffect, useState } from 'react';
+import { useUserContext } from '../contexts/UserContext';
 
 type ChatUser = {
-  id: number;
-  user1Email: string;
-  user2Email: string;
-  name: string;
-  image: string;
-  lastMessage: string;
+  chatId: string;
+  user1: string;
+  user2: string;
+  createdAt: string;
 };
-
-const mockChats: ChatUser[] = [
-  {
-    id: 1,
-    user1Email: 'you@example.com',
-    user2Email: 'liam@example.com',
-    name: 'Liam Cohen',
-    image: 'https://i.pravatar.cc/150?img=32',
-    lastMessage: 'Sure, let’s trade!',
-  },
-  {
-    id: 2,
-    user1Email: 'emma@example.com',
-    user2Email: 'you@example.com',
-    name: 'Emma Levi',
-    image: 'https://i.pravatar.cc/150?img=45',
-    lastMessage: 'What skill do you offer?',
-  },
-  {
-    id: 3,
-    user1Email: 'otheruser@example.com',
-    user2Email: 'someone@example.com',
-    name: 'Not Your Chat',
-    image: 'https://i.pravatar.cc/150?img=22',
-    lastMessage: 'You should not see this',
-  },
-];
 
 const ChatList: React.FC = () => {
   const { user } = useUserContext();
+  const [userChats, setUserChats] = useState<ChatUser[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      if (!user || !user.email) return;
+
+      try {
+        const res = await fetch(
+          `https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/Chat?userEmail=${encodeURIComponent(user.email)}`
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          setUserChats(data);
+        } else {
+          console.error('Failed to fetch chats');
+        }
+      } catch (err) {
+        console.error('Error fetching chats:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, [user]);
 
   if (!user) return <p>Loading user...</p>;
 
-  // Filter only chats where the logged-in user is a participant
-  const userChats = mockChats.filter(
-    chat => chat.user1Email === user.email || chat.user2Email === user.email
-  );
+  if (loading) return <p>Loading chats...</p>;
 
   return (
     <div style={styles.container}>
@@ -56,15 +49,24 @@ const ChatList: React.FC = () => {
         <p style={styles.noChats}>You have no chats yet.</p>
       ) : (
         <ul style={styles.list}>
-          {userChats.map((chat) => (
-            <li key={chat.id} style={styles.chatItem}>
-              <img src={chat.image} alt={chat.name} style={styles.avatar} />
-              <div>
-                <div style={styles.name}>{chat.name}</div>
-                <div style={styles.lastMessage}>{chat.lastMessage}</div>
-              </div>
-            </li>
-          ))}
+          {userChats.map((chat, idx) => {
+            const otherUser = chat.user1 === user.email ? chat.user2 : chat.user1;
+            return (
+              <li key={chat.chatId || idx} style={styles.chatItem}>
+                <img
+                  src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${otherUser}`}
+                  alt={otherUser}
+                  style={styles.avatar}
+                />
+                <div>
+                  <div style={styles.name}>{otherUser}</div>
+                  <div style={styles.lastMessage}>
+                    Chat started on: {new Date(chat.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
