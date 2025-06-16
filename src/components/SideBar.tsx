@@ -1,6 +1,6 @@
 import React, { useState, CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaUserCircle, FaPlus, FaHome, FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUserCircle, FaPlus, FaHome, FaSignOutAlt, FaSignInAlt, FaComments } from 'react-icons/fa';
 import logoNoBg from '../assets/images/logoNoBg.png';
 import { useUserContext } from '../contexts/UserContext';
 import ConfirmModal from '../components/ConfirmModal';
@@ -234,7 +234,7 @@ const SideBar: React.FC = () => {
                   onMouseLeave={handleMouseLeave}
                   onClick={() => setIsOpen(false)}
                 >
-                  💬 My Chats
+                  <FaComments/>My Chats
                 </Link>
               </li>
             )}
