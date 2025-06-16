@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useUserContext } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 type ChatUser = {
   chatId: string;
@@ -12,6 +13,7 @@ const ChatList: React.FC = () => {
   const { user } = useUserContext();
   const [userChats, setUserChats] = useState<ChatUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -52,7 +54,11 @@ const ChatList: React.FC = () => {
           {userChats.map((chat, idx) => {
             const otherUser = chat.user1 === user.email ? chat.user2 : chat.user1;
             return (
-              <li key={chat.chatId || idx} style={styles.chatItem}>
+              <li
+                key={chat.chatId || idx}
+                style={styles.chatItem}
+                onClick={() => navigate(`/chat/${chat.chatId}`)} // Navigate to messages page
+              >
                 <img
                   src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${otherUser}`}
                   alt={otherUser}

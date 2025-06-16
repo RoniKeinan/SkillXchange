@@ -224,7 +224,23 @@ const SideBar: React.FC = () => {
                 </a>
               )}
             </li>
+
+            {user && (
+              <li>
+                <Link
+                  to="/chatlist"
+                  style={linkStyle}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => setIsOpen(false)}
+                >
+                  💬 My Chats
+                </Link>
+              </li>
+            )}
           </ul>
+
+
         </nav>
         <div style={{ flexGrow: 1 }} />
         {/* Optional: Footer or tagline */}
