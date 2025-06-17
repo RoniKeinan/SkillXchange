@@ -46,9 +46,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [skills, setSkills] = useState<Skill[]>([]);
 
-  const DecodeIDToken = (idToken: string): [string, string] => {
-    const decodedToken = JSON.parse(atob(idToken.split(".")[1]));
-    return [decodedToken.sub, decodedToken.email];
+  const DecodeIDToken = (idToken: string) => {
+    const decodedPayload = JSON.parse(atob(idToken.split(".")[1]));
+    return decodedPayload;
   };
 
   useEffect(() => {
@@ -81,8 +81,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Step 4: Tokens are valid — fetch user from backend
-    const [userId, email] = DecodeIDToken(idToken);
+    const decodedToken = DecodeIDToken(idToken);
+    const userId = decodedToken.sub;
+    const email = decodedToken.email;
+
+    // Check if user is in the "Admin" group
+    if (decodedToken["cognito:groups"]?.includes("Admin")) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
 
     fetch("https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/User", {
       method: "POST",

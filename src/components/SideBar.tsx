@@ -10,7 +10,7 @@ const SIDEBAR_WIDTH = 260;
 
 const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, removeUser } = useUserContext();
+  const { user, removeUser ,isAdmin} = useUserContext();
   const [showConfirm, setShowConfirm] = useState(false);
   const requireAuth = useRequireAuth();
   const navigate = useNavigate();
@@ -237,6 +237,20 @@ const SideBar: React.FC = () => {
                   <FaComments/>My Chats
                 </Link>
               </li>
+            )}
+
+            {isAdmin && (
+              <li>
+                  <Link to ="/admin"
+                  style={linkStyle}
+                   onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                   onClick={() => setIsOpen(false)}>
+                   <FaPlus/>Admin Dashboard
+                   </Link>
+              </li>
+
+
             )}
           </ul>
 

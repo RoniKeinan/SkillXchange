@@ -12,9 +12,13 @@ import EditSkillPage from './pages/EditSkillPage';
 import EditProflie from './pages/EditProfile';
 import UserProfileScreen from './pages/UserProfileScreen';
 import ChatMessages from './pages/ChatMessages';
+import AdminPage from './pages/AdminPage'
+import { useUserContext } from './contexts/UserContext';
 
 
 const App: React.FC = () => {
+
+  const {isAdmin} = useUserContext();
   return (
 
     <div style={{ display: 'flex' }}>
@@ -33,6 +37,7 @@ const App: React.FC = () => {
           <Route path="/EditProfile" element={<EditProflie />} />
           <Route path="/user/:email" element={<UserProfileScreen />} />
           <Route path="/chat/:chatId" element={<ChatMessages />} />
+           <Route path="/admin" element={<AdminPage isAdmin={isAdmin} />} />
 
 
           {/* Add more routes here */}
