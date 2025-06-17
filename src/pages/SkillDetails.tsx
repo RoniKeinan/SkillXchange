@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useUserContext } from '../contexts/UserContext';
@@ -9,11 +9,39 @@ const SkillDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { skills } = useSkillContext();
   const { user } = useUserContext();
+  const [contactImage, setContactImage] = useState<string | null>(null);
 
   const [requestSent, setRequestSent] = useState(false);
 
   // Find skill by string id
   const skill = skills.find(s => s.id === id);
+
+
+
+  useEffect(() => {
+    const fetchContactImage = async () => {
+      try {
+        const response = await fetch('https://nnuizx91vd.execute-api.us-east-1.amazonaws.com/dev/User/Image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ contactEmail: skill?.contactEmail }),
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch image');
+
+        const data = await response.json();
+        if (data.image) setContactImage(data.image);
+      } catch (error) {
+        console.error('Error fetching contact image:', error);
+      }
+    };
+
+    if (skill?.contactEmail) {
+      fetchContactImage();
+    }
+  }, [skill]);
 
   if (!skill) return (
     <div style={styles.notFoundContainer}>
@@ -24,7 +52,7 @@ const SkillDetails: React.FC = () => {
     </div>
   );
 
-  console.log(user)
+  
 
   const handleExchangeRequest = async () => {
     if (!user?.email) return alert("User not logged in.");
@@ -38,10 +66,10 @@ const SkillDetails: React.FC = () => {
         // TODO: Optional delete/cancel API
       }
     } else {
-     
+
       const createdAt = new Date().toISOString();
       const payload = {
-       
+
         createdAt: createdAt,
         fromUserEmail: user.email,
         toUserEmail: skill.contactEmail,
@@ -92,9 +120,9 @@ const SkillDetails: React.FC = () => {
         <p style={styles.description}>{skill.description}</p>
 
         <div style={styles.userInfo}>
-          <Link to={`/user/${encodeURIComponent(skill.contactEmail)}`} style={styles.profileLink}>
+          <Link to={`/user/${encodeURIComponent(skill.contactEmail)}`} state={{ contactImage }} style={styles.profileLink}>
             <img
-              src={skill.images && skill.images.length > 0 ? skill.images[0] : logo}
+              src={contactImage || logo}
               alt={skill.contactName}
               style={styles.avatar}
             />

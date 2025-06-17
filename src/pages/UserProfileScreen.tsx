@@ -1,15 +1,18 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import {useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useSkillContext } from '../contexts/SkillsContext';
 import logo from '../assets/images/logo.png';
+
 
 const UserProfile: React.FC = () => {
   const { email } = useParams<{ email: string }>();
   const { skills } = useSkillContext();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Find all skills uploaded by this user
   const userSkills = skills.filter(skill => skill.contactEmail === email);
+  const contactImage = location.state?.contactImage;
 
   // Use info from the first skill for the profile section
   const user = {
@@ -22,7 +25,7 @@ const UserProfile: React.FC = () => {
     <div style={styles.container}>
       <div style={styles.userHeader}>
         <img
-          src={user.image}
+          src={contactImage}
           alt={user.name || user.email}
           style={styles.avatar}
         />
