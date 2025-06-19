@@ -5,7 +5,7 @@ import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('RequestsTable')  # Change to your DynamoDB table name
+table = dynamodb.Table('SkillExchangeRequests')  # Change to your DynamoDB table name
 
 def lambda_handler(event, context):
     try:

@@ -3,13 +3,18 @@ import { useUserContext } from '../contexts/UserContext';
 import { FiMessageCircle, FiMail } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import SkillCard from '../components/SkillCard';
+import { useRequestContext } from '../contexts/RequestContext';
+import { useChatContext } from '../contexts/ChatContext';
 
 const ProfileScreen: React.FC = () => {
   const { user, skills } = useUserContext();
   const navigate = useNavigate();
+  const { receivedRequests } = useRequestContext();
+  const { userChats } = useChatContext();
 
-  const unreadMessages = 3;
-  const unreadChats = 1;
+  console.log(receivedRequests)
+
+
 
   if (!user) {
     return (
@@ -32,13 +37,17 @@ const ProfileScreen: React.FC = () => {
               <button onClick={() => navigate('/PendingMessages')} style={styles.iconButton}>
                 <FiMail size={22} />
               </button>
-              {unreadMessages > 0 && <div style={styles.badge}>{unreadMessages}</div>}
+              {receivedRequests.filter(r => r.status.toLowerCase() !== 'approved').length > 0 && (
+                <div style={styles.badge}>
+                  {receivedRequests.filter(r => r.status.toLowerCase() !== 'approved').length}
+                </div>
+              )}
             </div>
             <div style={styles.iconWrapper}>
               <button onClick={() => navigate('/ChatList')} style={styles.iconButton}>
                 <FiMessageCircle size={22} />
               </button>
-              {unreadChats > 0 && <div style={styles.badge}>{unreadChats}</div>}
+              {userChats.length > 0 && <div style={styles.badge}>{userChats.length}</div>}
             </div>
           </div>
         </div>
