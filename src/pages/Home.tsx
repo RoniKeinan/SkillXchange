@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { useSkillContext } from '../contexts/SkillsContext';
 import { useCategoryContext } from '../contexts/CategoryContext';
 import { useNavigate } from 'react-router-dom';

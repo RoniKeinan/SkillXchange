@@ -4,7 +4,7 @@ import { FaBars, FaTimes, FaUserCircle, FaPlus, FaHome, FaSignOutAlt, FaSignInAl
 import logoNoBg from '../assets/images/logoNoBg.png';
 import { useUserContext } from '../contexts/UserContext';
 import ConfirmModal from '../components/ConfirmModal';
-import { useRequireAuth } from '../hooks/useRequireAuth';
+
 
 const SIDEBAR_WIDTH = 260;
 
@@ -12,7 +12,7 @@ const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, removeUser ,isAdmin} = useUserContext();
   const [showConfirm, setShowConfirm] = useState(false);
-  const requireAuth = useRequireAuth();
+
   const navigate = useNavigate();
 
   // Updated styles

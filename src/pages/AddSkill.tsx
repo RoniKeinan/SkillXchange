@@ -180,7 +180,7 @@ const AddSkillPage: React.FC = () => {
       await getAllSkills();
       navigate('/');
     } else {
-      const errorData = await response.json();
+     
       alert('Failed to add skill.');
     }
   } catch (error) {

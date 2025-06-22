@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useCategoryContext } from './CategoryContext';
-import { useUserContext } from './UserContext';
+
 
 export interface Skill {
   id: string;
@@ -30,7 +30,7 @@ interface SkillProviderProps {
 }
 
 export const SkillProvider: React.FC<SkillProviderProps> = ({ children }) => {
-  const { user } = useUserContext();
+ 
   const { addCategory, categories } = useCategoryContext();
 
   const [skills, setSkills] = useState<Skill[]>([]);
