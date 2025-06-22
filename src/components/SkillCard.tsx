@@ -1,10 +1,13 @@
 import React from 'react';
 
-interface Skill {
-  id: number;
-  name: string;
+export interface Skill {
+  id: string;
+  skillName: string;
   category: string;
   description: string;
+  contactName: string;
+  contactEmail: string;
+  images?: string[];
 }
 
 interface SkillCardProps {
@@ -21,7 +24,7 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, onClick }) => {
 
   return (
     <div style={styles.skillCard} onClick={handleClick} >
-      <div style={styles.skillName}>{skill.name}</div>
+      <div style={styles.skillName}>{skill.skillName}</div>
       <div style={styles.skillCategory}>Category: {skill.category}</div>
       <div style={styles.skillDescription}>{skill.description}</div>
     </div>

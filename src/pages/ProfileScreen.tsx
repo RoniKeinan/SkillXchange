@@ -5,9 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import SkillCard from '../components/SkillCard';
 import { useRequestContext } from '../contexts/RequestContext';
 import { useChatContext } from '../contexts/ChatContext';
+import { useSkillContext } from '../contexts/SkillsContext';
 
 const ProfileScreen: React.FC = () => {
-  const { user, skills } = useUserContext();
+  const { user } = useUserContext();
+  const { skills } = useSkillContext();
+  const userSkills = skills.filter(skill => skill.contactEmail === user?.email);
+
   const navigate = useNavigate();
   const { receivedRequests } = useRequestContext();
   const { userChats } = useChatContext();
@@ -86,12 +90,11 @@ const ProfileScreen: React.FC = () => {
         <div style={styles.section}>
           <div style={styles.label}>Skills:</div>
           <div style={styles.skillsGrid}>
-            {skills.length > 0 ? (
-              skills.map((skill) => (
+            {userSkills.length > 0 ? (
+              userSkills.map((skill) => (
                 <SkillCard
                   key={skill.id}
                   skill={skill}
-                  onClick={(selectedSkill) => navigate(`/MySkill/${selectedSkill.id}`)}
                 />
               ))
             ) : (
