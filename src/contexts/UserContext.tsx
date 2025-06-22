@@ -103,8 +103,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         return res.json();
       })
-      .then((data) => { 
+      .then((data) => {
         setUser(data.user) 
+        navigate("/"); // 👈 מעבר לדף הבית 
       })
       .catch((error) => {
         console.error("API call failed:", error);
